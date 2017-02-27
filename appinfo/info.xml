@@ -18,6 +18,6 @@
 	</two-factor-providers>
 
 	<dependencies>
-		<owncloud min-version="9.2" max-version="9.3" />
+		<owncloud min-version="9.2" max-version="11" />
 	</dependencies>
 </info>

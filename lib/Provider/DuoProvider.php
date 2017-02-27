@@ -29,6 +29,25 @@ require_once 'duo/lib/Web.php';
 
 $conf_ini_array = parse_ini_file('duo/duo.ini',1);
 
+/**
+ * Check if a given ip is in a network
+ * @param  string $ip    IP to check in IPV4 format eg. 127.0.0.1
+ * @param  string $range IP/CIDR netmask eg. 127.0.0.0/24, also 127.0.0.1 is accepted and /32 assumed
+ * @return boolean true if the ip is in this range / false if not.
+ */
+function ip_in_range( $ip, $range ) {
+	if ( strpos( $range, '/' ) == false ) {
+		$range .= '/32';
+	}
+	// $range is in IP/CIDR format eg 127.0.0.1/24
+	list( $range, $netmask ) = explode( '/', $range, 2 );
+	$range_decimal = ip2long( $range );
+	$ip_decimal = ip2long( $ip );
+	$wildcard_decimal = pow( 2, ( 32 - $netmask ) ) - 1;
+	$netmask_decimal = ~ $wildcard_decimal;
+	return ( ( $ip_decimal & $netmask_decimal ) == ( $range_decimal & $netmask_decimal ) );
+}
+
 class DuoProvider implements IProvider2 {
 
 	/**
@@ -131,12 +150,16 @@ class DuoProvider implements IProvider2 {
 		if (isset($conf_ini_array['custom_settings']['IP_BYPASS'])) {
 			$IP_BYPASS = $conf_ini_array['custom_settings']['IP_BYPASS'];
 			$remote_ip = (string)trim((getenv(REMOTE_ADDR)));
-			if (in_array($remote_ip,$IP_BYPASS))
-				return false;
-			else
-				return true;
+
+			$count = count($IP_BYPASS);
+			for ($i = 0; $i < $count; $i++) {
+				if (ip_in_range($remote_ip, $IP_BYPASS[$i])) {
+					return false;
+				}
+			}
+
 		}
-                return true; // Fallback to requiring 2FA
+        return true; // Fallback to requiring 2FA
 	}
 
 }
