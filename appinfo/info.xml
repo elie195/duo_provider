@@ -2,10 +2,10 @@
 <info>
 	<id>duo</id>
 	<name>Duo Two-Factor Provider</name>
-	<description>Duo Two-Factor-Auth Provider for ownCloud 9.2+</description>
+	<description>Duo Two-Factor-Auth Provider for ownCloud 10.0+</description>
 	<licence>AGPL</licence>
 	<author>El-ad Blech</author>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<namespace>Duo</namespace>
 	<category>other</category>
 	<types>
@@ -18,6 +18,6 @@
 	</two-factor-providers>
 
 	<dependencies>
-		<owncloud min-version="9.2" max-version="9.3" />
+		<owncloud min-version="10.0" max-version="10.1" />
 	</dependencies>
 </info>

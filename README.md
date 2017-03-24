@@ -7,11 +7,13 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
 
 **Update:** The changes have been merged into the ownCloud master branch, and will be available as of ownCloud 9.2: https://github.com/owncloud/core/tree/master
 
+**Update - 3/23/2017:** The changes in ownCloud core are now targetted at version 10.0 instead of 9.2
+
 ##Requirements
 
 - PHP >=5.6 (Duo SDK requirement) - See guide at the bottom for Ubuntu 14.04 instructions (*This doesn't seem like a hard requirement, successfully used PHP 5.4.16 on CentOS 7 as well*)
 - Duo application settings (IKEY, SKEY, HOST)
-- ownCloud 9.2 or later (https://github.com/owncloud/core)
+- ownCloud 10.0 or later (https://github.com/owncloud/core)
     
 ##Installation
 
@@ -62,7 +64,7 @@ Or if you're using Python3:
 
 You may then take this new AKEY and insert it into your customized duo.ini file.
 
-This has been tested on ownCloud 9.2.1 (cloned from "master" branch of the official ownCloud repo) on a CentOS 7 server, as well as an Ubuntu 14.04 server where ownCloud was installed from packages (both with manually upgraded PHP: PHP 5.6.24 on CentOS 7, PHP 7.0.9-1 on Ubuntu 14.04). 
+This has been tested on ownCloud 10.0 (cloned from "master" branch of the official ownCloud repo) on a CentOS 7 server, as well as an Ubuntu 14.04 server where ownCloud was installed from packages (both with manually upgraded PHP: PHP 5.6.24 on CentOS 7, PHP 7.0.9-1 on Ubuntu 14.04). 
 
 See https://duo.com/docs/duoweb for more info on the Duo Web SDK and additional details about the "AKEY" variable.
 
