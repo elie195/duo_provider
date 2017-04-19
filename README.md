@@ -7,7 +7,9 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
 
 **Update:** The changes have been merged into the ownCloud master branch, and will be available as of ownCloud 9.2: https://github.com/owncloud/core/tree/master
 
-**Update - 3/23/2017:** The changes in ownCloud core are now targetted at version 10.0 instead of 9.2
+**Update - 3/23/2017:** The changes in ownCloud core are now targetted at version 10.0 instead of 9.2. 
+
+**Update - 4/17/2017:** If you _really_ want to use this plugin in the current "stable" ownCloud release, see the "Patching an unsupported ownCloud core installation" instructions below.
 
 ## Requirements
 
@@ -32,9 +34,27 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
 3. Enable the app in the ownCloud GUI
 
     ![Image of Duo app](https://github.com/elie195/duo_provider/raw/master/misc/duo.PNG)
+    
+
+### Patching an unsupported ownCloud core installation (use at your own risk!)
+
+1. Download and configure the plugin normally per the installation instructions on Github
+
+2. Patch your existing ownCloud installation with the changes required for the Duo plugin to work:
+
+	```
+    wget -O /var/www/owncloud/duo_provider.patch https://github.com/owncloud/core/commit/d1c9c10fda3afc54e19f24245fd55372c4f48371.patch
+	cd /var/www/owncloud && git apply duo_provider.patch
+    ```
+    
+3. Modify the `min-version` attribute of the `owncloud` element in `duo/appinfo/info.xml` to reflect the ownCloud version you're currently running (**"9.1"**, for example) 
+
+Using this workaround will most likely cause the built-in code integrity check to fail (and might have some other unintended side-effects). This workaround is unsupported, so exercise caution!
 
 
 ## Notes
+
+**HTTPS _MUST_ be enabled on your ownCloud server for this plugin to work!**
 
 **Important:** Please disable the "*Notifications*" plugin if enabled. This plugin has been found to refresh the two-factor related pages, making it extremely difficult/impossible to complete the 2FA process.
 
