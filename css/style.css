@@ -1,0 +1,19 @@
+.box {
+	margin: 10px 0;
+}
+
+.section {
+	width: 320px;
+}
+
+.indent {
+	margin-left: 28px;
+}
+
+#reset-btn, #advcd-btn {
+	float: right;
+}
+
+input[type="text"], input[type="password"],textarea {
+	width: 100%;
+}

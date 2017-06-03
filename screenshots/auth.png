@@ -1,0 +1,64 @@
+<html><head><title>Preview Duo Two-Factor Authentication</title>
+<script type='text/javascript' src='https://partner.googleadservices.com/gampad/google_service.js'>
+</script>
+<script type='text/javascript'>
+GS_googleAddAdSenseService("ca-pub-1150932386931372");
+GS_googleEnableAllServices();
+</script>
+<script type='text/javascript'>
+GA_googleAddSlot("ca-pub-1150932386931372", "contentbox");
+GA_googleAddSlot("ca-pub-1150932386931372", "fullsizebanner");
+GA_googleAddSlot("ca-pub-1150932386931372", "skyscraper");
+GA_googleAddSlot("ca-pub-1150932386931372", "standardbanner")
+</script>
+<script type='text/javascript'>
+GA_googleFetchAds();
+</script>
+  
+    <style type="text/css">
+    <!--
+      a {text-decoration:none;}
+    -->
+    </style>
+  <link rel="shortcut icon" type="image/x-icon" href="https://apps.ownCloud.com/img/favicon-77-1.ico"<script type="text/javascript">
+<!--
+function winresize(){
+
+
+	if (self.document.preview.complete == true) {
+		xx=self.document.preview.width;
+		yy=self.document.preview.height;
+
+		xx=xx+30
+		yy=yy+175
+
+		if (xx < 600) xx=600;
+		if (yy < 500) yy=500;
+
+		self.resizeTo(xx, yy);
+		self.focus();
+
+
+	}
+}
+//-->
+</script>
+</head><body bgcolor="#FFFFFF"><center><br /><img src="/CONTENT/content-pre1/174748-1.jpg" border="0" title="Duo Two-Factor Authentication" name="Duo Two-Factor Authentication"><br /><br /><br /></center>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-578888-1']);
+  _gaq.push(['_setDomainName', 'kde-look.org']);
+  _gaq.push(['_setAllowLinker', true]);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+    </body></html>
