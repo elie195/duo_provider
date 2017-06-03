@@ -11,9 +11,11 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
 
 **Update - 4/17/2017:** If you _really_ want to use this plugin in the current "stable" ownCloud release, see the "Patching an unsupported ownCloud core installation" instructions below.
 
+**Update - 6/2/2017:** This plugin is verified working on version 10.0.2RC1
+
 ## Requirements
 
-- PHP >=5.6 (Duo SDK requirement) - See guide at the bottom for Ubuntu 14.04 instructions (*This doesn't seem like a hard requirement, successfully used PHP 5.4.16 on CentOS 7 as well*)
+- PHP >=5.6 (Duo SDK requirement) - See guide at the bottom for Ubuntu 14.04 instructions
 - Duo application settings (IKEY, SKEY, HOST)
 - ownCloud 10.0 or later (https://github.com/owncloud/core)
     
@@ -25,15 +27,13 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
     cd /var/www/owncloud/apps && git clone https://github.com/elie195/duo_provider.git duo
     ```
     
-2. Customize duo.ini (**remember** to insert your own **IKEY**, **SKEY**, **HOST** values!):
+2. Configure your own **IKEY**, **SKEY**, **HOST** values under **Settings** > **Admin section** > **Additional**:
 
-    ```
-    cp duo/duo.ini.example duo/duo.ini
-    ```
+    ![Image of Duo settings](https://github.com/elie195/duo_provider/raw/master/screenshots/settings.png)
     
 3. Enable the app in the ownCloud GUI
 
-    ![Image of Duo app](https://github.com/elie195/duo_provider/raw/master/misc/duo.PNG)
+    ![Image of Duo app in settings](https://github.com/elie195/duo_provider/raw/master/screenshots/duo.PNG)
     
 
 ### Patching an unsupported ownCloud core installation (use at your own risk!)
@@ -56,23 +56,22 @@ Using this workaround will most likely cause the built-in code integrity check t
 
 **HTTPS _MUST_ be enabled on your ownCloud server for this plugin to work!**
 
-**Important:** Please disable the "*Notifications*" plugin if enabled. This plugin has been found to refresh the two-factor related pages, making it extremely difficult/impossible to complete the 2FA process.
-
-**Update:** This issue has been fixed as of ownCloud stable9.1 and later: https://github.com/owncloud/core/pull/25904
+**The "Clear settings" button in the settings will also disable the Duo plugin itself! Once the plugin is disabled, its settings won't show up on the "Additional" settings page. You must re-enable the app from the "Apps" settings page to get the Duo settings to show up again.
 
 ### LDAP integration
 
-If you're using LDAP, the 2FA won't work right off the bat, since ownCloud refers to LDAP users with their UUID, so I'm not able to pass the plaintext username to Duo, and the authentication fails. See issue #2 for more details.
+If you're using LDAP, the 2FA won't work right off the bat, since ownCloud refers to LDAP users via their UUID, so I'm not able to pass the plaintext username to Duo, and the authentication fails. See issue #2 for more details.
 
-To change the LDAP settings so that the internal identifier uses the username instead of the UUID, do the following (I'm using AD LDAP, so the attributes are named accordingly): To configure this with AD LDAP, go into "Expert" mode in the ownCloud LDAP settings, and set "Internal Username Attribute" to "sAMAccountName". Note that this only affects new users. Existing users must be deleted and recreated, so use at your own risk.
+To change the LDAP settings so that the internal identifier uses the username instead of the UUID, do the following (I'm using AD LDAP, so the attributes are named accordingly): Go into "Expert" mode in the ownCloud LDAP settings, and set "Internal Username Attribute" to "sAMAccountName". Note that this only affects new users. Existing users must be deleted and recreated, so use at your own risk.
 
 ### Added features
-- August 27, 2016: You may now configure specific client IP addresses to bypass Duo 2FA in duo.ini. Check duo.ini.example for more details. (https://github.com/elie195/duo_provider/issues/3)
-- August 27, 2016: You may now configure an option in duo.ini to bypass Duo 2FA for LDAP users only. Check duo.ini.example for more details.(https://github.com/elie195/duo_provider/issues/4)
+- June 2, 2017: Migrated the app's settings into the ownCloud UI instead of using a configuration file (duo.ini). This was done in-order to avoid tripping the built-in ownCloud file integrity check (see [issue #6](https://github.com/elie195/duo_provider/issues/6) for more details). For this reason, please delete/move your current `duo.ini` config file so that ownCloud won't identify it as an "extra" file. The `duo_php` SDK has also been updated to the latest version available on [Github](https://github.com/duosecurity/duo_php).
+- August 27, 2016: You may now configure specific client IP addresses to bypass Duo 2FA in duo.ini. Check duo.ini.example for more details. ([https://github.com/elie195/duo_provider/issues/3](https://github.com/elie195/duo_provider/issues/3))
+- August 27, 2016: You may now configure an option in duo.ini to bypass Duo 2FA for LDAP users only. Check duo.ini.example for more details.([https://github.com/elie195/duo_provider/issues/4](https://github.com/elie195/duo_provider/issues/4))
 
 ### Misc
 
-I have included an "AKEY" in the duo.ini.example file. The "AKEY" is an application-specific secret string. Feel free to generate your own "AKEY" by executing the following Python code:
+I have included an "AKEY" in the configuration by default. **If the "AKEY" field is empty when Duo settings are saved, the default "AKEY" value will be used.** The "AKEY" is an application-specific secret string. If strong security is important to you (hey, you're setting up a security-oriented plugin here afterall), feel free to generate your own "AKEY" by executing the following Python code:
 
     import os, hashlib
     print hashlib.sha1(os.urandom(32)).hexdigest()
@@ -82,7 +81,7 @@ Or if you're using Python3:
     import os, hashlib
     print(hashlib.sha1(os.urandom(32)).hexdigest())
 
-You may then take this new AKEY and insert it into your customized duo.ini file.
+You may then take this new AKEY and insert it into your config.
 
 This has been tested on ownCloud 10.0 (cloned from "master" branch of the official ownCloud repo) on a CentOS 7 server, as well as an Ubuntu 14.04 server where ownCloud was installed from packages (both with manually upgraded PHP: PHP 5.6.24 on CentOS 7, PHP 7.0.9-1 on Ubuntu 14.04). 
 
