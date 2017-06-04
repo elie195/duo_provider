@@ -21,19 +21,29 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
     
 ## Installation
 
+
+### Automatically through ownCloud Marketplace (ownCloud 10.0+)
+1. Download the "Duo Two-Factor Provider" app from the [ownCloud Marketplace](https://marketplace.owncloud.com/):
+
+    ![Image of Duo in Marketplace](https://github.com/elie195/duo_provider/raw/dev/screenshots/market_duo.png)
+    
+2. Follow steps 2 and 3 from the "Manually" section
+
+### Manually
 1. Clone this repo to the 'apps/duo' directory of your ownCloud installation. i.e.:
 
     ```
     cd /var/www/owncloud/apps && git clone https://github.com/elie195/duo_provider.git duo
     ```
-    
-2. Configure your own **IKEY**, **SKEY**, **HOST** values under **Settings** > **Admin section** > **Additional**:
 
-    ![Image of Duo settings](https://github.com/elie195/duo_provider/raw/master/screenshots/settings.png)
-    
-3. Enable the app in the ownCloud GUI
+2. Ensure the app is enabled in the ownCloud GUI
 
     ![Image of Duo app in settings](https://github.com/elie195/duo_provider/raw/master/screenshots/duo.PNG)
+
+3. Configure your own **IKEY**, **SKEY**, **HOST** values under **Settings** > **Admin section** > **Additional**:
+
+    ![Image of Duo settings](https://github.com/elie195/duo_provider/raw/master/screenshots/settings.png)
+
     
 
 ### Patching an unsupported ownCloud core installation (use at your own risk!)
@@ -90,3 +100,4 @@ See https://duo.com/docs/duoweb for more info on the Duo Web SDK and additional 
 See https://www.digitalocean.com/community/tutorials/how-to-upgrade-to-php-7-on-ubuntu-14-04 for a PHP upgrade guide for Ubuntu 14.04
 
 Check out my ownCloud Application page: https://apps.owncloud.com/content/show.php?content=174748
+**New (June 2, 2017)**: Now in the ownCloud Marketplace: https://marketplace.owncloud.com/apps/duo
