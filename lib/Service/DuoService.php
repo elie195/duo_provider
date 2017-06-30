@@ -37,7 +37,7 @@ class DuoService implements IDuoService {
 
     /**
      * @param IUser $user
-     * @param string $remote_ip
+     * @param array $remote_ip
      */
     public function userEnabled(IUser $user, $remote_ip)
     {
@@ -55,11 +55,12 @@ class DuoService implements IDuoService {
           if ($this->configService->getAppValue("ipEnabled") == true) {
               $ipList = $this->configService->getAppValue("ipList");
               $ipListArray = explode(",", $ipList);
-              if (in_array($remote_ip,$ipListArray)) {
-                  return false;
-              } else {
-                  return true;
+              foreach ($remote_ip as $ip) { 
+                  if (in_array($ip,$ipListArray)) {
+                      return false;
+                  }
               }
+              return true;
           }
           // This point means that advanced options are off, but Duo is globally on
           return true;

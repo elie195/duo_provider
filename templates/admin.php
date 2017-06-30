@@ -8,13 +8,13 @@ style('duo', 'style');
     <h2 class="app-name">Duo MFA</h2>
     <div class="box" id="duo-settings">
       <p><label for="ikey-input">IKEY: </label>
-      <input class="duo-text indent" id="ikey-input" type="text" value="<?php p($_['ikey'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX"></p>
+      <input class="duo-text indent" id="ikey-input" type="text" value="<?php p($_['ikey'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX" autocomplete="off"></p>
       <p><label for="skey-input">SKEY: </label>
-      <input class="duo-text indent" id="skey-input" type="text" value="<?php p($_['skey'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"></p>
+      <input class="duo-text indent" id="skey-input" type="text" value="<?php p($_['skey'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="off"></p>
       <p><label for="host-input">Hostname: </label>
-      <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com"></p>
+      <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com" autocomplete="off"></p>
       <p><label for="akey-input">AKEY: </label>
-      <input class="duo-text indent" id="akey-input" type="text" value="<?php p($_['akey'])?>"></p>
+      <input class="duo-text indent" id="akey-input" type="text" value="<?php p($_['akey'])?>" autocomplete="off"></p>
       <hr>
       <div id="advcd-div">
       <p><label for="ip-bypass-list">IP Bypass List  <small>(one <strong>IP</strong> per line):</label>
