@@ -46,4 +46,13 @@ interface IDuoService {
      */
     public function validateChallenge(IUser $user, $challenge);
 
+
+    /**
+     * Get IP address of client (either actual IP or from X-Forwarded-For header(s))
+     *
+     * @param array $headers
+     * @return array
+     */
+    public function getClient($headers);
+
 }

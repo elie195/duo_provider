@@ -35,6 +35,24 @@ class DuoService implements IDuoService {
         $this->configService = $configService;
     }
 
+
+    /**
+     * Get IP address of client (either actual IP or from X-Forwarded-For header(s))
+     *
+     * @param array $headers
+     * @return array
+     */
+    public function getClient($headers) {
+        $debug_text = "request contains XFF header";
+        //file_put_contents('php://stderr', print_r($headers, TRUE));
+        if (isset($headers['X-Forwarded-For'])) {
+            return explode(', ', $headers['X-Forwarded-For']);
+        }
+        else {
+            return array((string)trim(getenv('REMOTE_ADDR')));
+        }
+    }
+
     /**
      * @param IUser $user
      * @param array $remote_ip
@@ -53,6 +71,7 @@ class DuoService implements IDuoService {
                   }
           }
           if ($this->configService->getAppValue("ipEnabled") == true) {
+              file_put_contents('php://stderr', print_r($remote_ip, TRUE));
               $ipList = $this->configService->getAppValue("ipList");
               $ipListArray = explode(",", $ipList);
               foreach ($remote_ip as $ip) { 

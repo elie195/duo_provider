@@ -41,6 +41,7 @@ class DuoProvider implements IProvider2 {
 		$this->duoService = $duoService;
         }
 
+
 	/**
 	 * Get unique identifier of this 2FA provider
 	 *
@@ -105,10 +106,14 @@ class DuoProvider implements IProvider2 {
 	 * @return boolean
 	 */
 	public function isTwoFactorAuthEnabledForUser(IUser $user) {
-                $remote_ip = array((string)trim(getenv('REMOTE_ADDR')));
-		if (array_key_exists('X-Forwarded-For', getallheaders())) {
-			array_push($remote_ip, getallheaders()['X-Forwarded-For']);
-		}
+		$headers = getallheaders();
+		$remote_ip = $this->duoService->getClient($headers);
+		// Debug print:
+		//file_put_contents('php://stderr', print_r($remote_ip, TRUE));
+                //$remote_ip = array((string)trim(getenv('REMOTE_ADDR')));
+		//if (array_key_exists('X-Forwarded-For', getallheaders())) {
+		//	array_push($remote_ip, getallheaders()['X-Forwarded-For']);
+		//}
                 return $this->duoService->userEnabled($user, $remote_ip);
 	}
 
