@@ -107,13 +107,8 @@ class DuoProvider implements IProvider2 {
 	 */
 	public function isTwoFactorAuthEnabledForUser(IUser $user) {
 		$headers = getallheaders();
+                // getClient returns either the X-Forwarded-For IP(s), if present, or the client remote IP
 		$remote_ip = $this->duoService->getClient($headers);
-		// Debug print:
-		//file_put_contents('php://stderr', print_r($remote_ip, TRUE));
-                //$remote_ip = array((string)trim(getenv('REMOTE_ADDR')));
-		//if (array_key_exists('X-Forwarded-For', getallheaders())) {
-		//	array_push($remote_ip, getallheaders()['X-Forwarded-For']);
-		//}
                 return $this->duoService->userEnabled($user, $remote_ip);
 	}
 
