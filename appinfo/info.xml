@@ -9,6 +9,7 @@
 	<namespace>Duo</namespace>
 	<category>security</category>
 	<screenshot>https://github.com/elie195/duo_provider/raw/master/screenshots/auth.jpg</screenshot>
+	<summary>Duo Two-Factor-Auth Provider for ownCloud 10.0+</summary>
 	<ocsid>174748</ocsid>
 	<types>
 		<prelogin/>
