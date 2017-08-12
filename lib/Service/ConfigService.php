@@ -23,6 +23,7 @@ namespace OCA\Duo\Service;
 
 use Exception;
 use \OCP\IConfig;
+use \OCP\ILogger;
 
 class ConfigService {
 
@@ -38,7 +39,10 @@ class ConfigService {
      */
     protected $appName;
 
-    public function __construct($appName, IConfig $duoConfig) {
+    private $logger;
+
+    public function __construct(ILogger $logger, $appName, IConfig $duoConfig) {
+        $this->logger = $logger;
         $this->appName = $appName;
         $this->duoConfig = $duoConfig;
     }
@@ -65,4 +69,9 @@ class ConfigService {
     public function deleteAppValues() {
         $this->duoConfig->deleteAppValues($this->appName);
     }
+
+    public function log($message) {
+        $this->logger->error($message, array('app' => $this->appName));
+    }
+
 }

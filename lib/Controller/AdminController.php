@@ -31,8 +31,7 @@ class AdminController extends Controller {
 
     /** @var ConfigService */
     private $configService;
-
-    
+   
     /**
      * @param string $AppName
      * @param IRequest $request
@@ -59,7 +58,9 @@ class AdminController extends Controller {
             'globalEnabled' => $this->configService->getAppValue("globalEnabled"),
             'ipEnabled' => $this->configService->getAppValue("ipEnabled"),
             'ldapEnabled' => $this->configService->getAppValue("ldapEnabled"),
-            'ipList' => $this->configService->getAppValue("ipList")
+            'ipList' => $this->configService->getAppValue("ipList"),
+            'netbiosDomain' => $this->configService->getAppValue("netbiosDomain"),
+            'netbiosEnabled' => $this->configService->getAppValue("netbiosEnabled")
         ];
         return new TemplateResponse($this->appName, 'admin', $params, 'admin');
     }
@@ -73,9 +74,11 @@ class AdminController extends Controller {
      * @param bool $ipEnabled
      * @param bool $ldapEnabled
      * @param string $ipList
+     * @param string $netbiosDomain
+     * @param bool $netbiosEnabled
      * @return TemplateResponse
      */
-    public function saveSettings($ikey, $skey, $host, $akey, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList) {
+    public function saveSettings($ikey, $skey, $host, $akey, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList, $netbiosDomain, $netbiosEnabled) {
         $this->configService->setAppValue("ikey", $ikey);
         $this->configService->setAppValue("skey", $skey);
         $this->configService->setAppValue("host", $host);
@@ -83,6 +86,8 @@ class AdminController extends Controller {
         $this->configService->setAppValue("ipEnabled", $ipEnabled);
         $this->configService->setAppValue("ldapEnabled", $ldapEnabled);
         $this->configService->setAppValue("ipList", $ipList);
+        $this->configService->setAppValue("netbiosDomain", $netbiosDomain);
+        $this->configService->setAppValue("netbiosEnabled", $netbiosEnabled);
         return $this->configService->setAppValue("akey", $akey);
     }
 

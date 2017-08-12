@@ -37,11 +37,17 @@ class Application extends App
          */
         $container->registerService('AdminController', function($c) {
             return new AdminController(
+                $c->query('Logger'),
                 $c->query('AppName'),
                 $c->query('Request'),
                 $c->query('DuoService')
             );
         });
+
+        $container->registerService('Logger', function($c) {
+            return $c->query('ServerContainer')->getLogger();
+        });
+
         $container->registerAlias(IDuoService::class, DuoService::class);
     }
 

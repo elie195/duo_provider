@@ -24,6 +24,10 @@ style('duo', 'style');
       <label for="ip-bypass-checkbox"> IP Bypass Enabled?  <small>(advanced)</small></label></p>
       <input id="ldap-bypass-checkbox" class="checkbox indent" type="checkbox" <?php p($_['ldapEnabled']==true ? 'checked' : '')?>>
       <label for="ldap-bypass-checkbox"> LDAP Bypass Enabled?  <small>(advanced)</small></label></p>
+      <input id="netbios-domain-checkbox" class="checkbox indent" type="checkbox" <?php p($_['netbiosEnabled']==true ? 'checked' : '')?>>
+      <label for="netbios-domain-checkbox"> Prepend NetBIOS domain?  <small>(advanced)</small></label></p>
+      <p><label id="netbios-label" for="netbios-input">NetBIOS Domain: </label>
+      <input class="duo-text indent" id="netbios-input" type="text" value="<?php p($_['netbiosDomain'])?>" placeholder="DOMAIN"></p>
       <!-- End advanced options area -->
       </div>
       <br>

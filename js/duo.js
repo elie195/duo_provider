@@ -3,6 +3,14 @@
     $(document).ready(function () {
         //alert("Loaded duo.js");
         $('#advcd-div').hide();
+        if ($('#netbios-domain-checkbox').is(':checked')) {
+          $('#netbios-input').show();
+          $('#netbios-label').show();
+        } else {
+          $('#netbios-input').hide();
+          $('#netbios-label').hide();
+        }
+
         $('#skey-input').attr("type","password");
 
         $('#ikey-input, #skey-input, #host-input, #akey-input').blur(function() {
@@ -14,6 +22,16 @@
             $('#advcd-div').hide();
           } else {
             $('#advcd-div').show();
+          }
+        });
+
+        $('#netbios-domain-checkbox').change(function() {
+          if(this.checked) {
+            $('#netbios-input').show();
+            $('#netbios-label').show();
+          } else {
+            $('#netbios-input').hide();
+            $('#netbios-label').hide();
           }
         });
 
@@ -34,9 +52,15 @@
           var ipEnabled = $('#ip-bypass-checkbox').is(':checked');
           var ldapEnabled = $('#ldap-bypass-checkbox').is(':checked');
           var ipList = $('#ip-bypass-list').val().replace(/\n/g, ",").replace(/,+$/, "");
+          var netbiosEnabled = $('#netbios-domain-checkbox').is(':checked');
+          var netbiosDomain = $('#netbios-input').val().toUpperCase();
           //Check that required fields have been filled out
           if (!ikey || !skey || !host) {
             alert("Error: IKEY, SKEY, and Hostname fields must be filled out");
+            return;
+          }
+          if (!netbiosDomain && netbiosEnabled) {
+            alert("Error: NetBIOS domain must be specified if the option is enabled");
             return;
           }
           //akey is optional, so we set it to a predefined value if it's not set/specified
@@ -53,11 +77,16 @@
             globalEnabled: globalEnabled,
             ipEnabled: ipEnabled,
             ldapEnabled: ldapEnabled,
-            ipList: ipList
+            ipList: ipList,
+            netbiosEnabled: netbiosEnabled,
+            netbiosDomain: netbiosDomain
           };
-          $.post(url, data).success(function (response) {
+          $.post(url, data).done(function (response) {
             console.log("Successfully saved Duo config");
             $('#success-msg').removeAttr("hidden");
+          }).fail(function(xhr, status, error) {
+            alert("Error saving Duo config. Check browser console for details");
+            console.log(error);
           });
         });
         $('#reset-btn').click(function() {

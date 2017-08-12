@@ -102,7 +102,18 @@ class DuoService implements IDuoService {
         $akey = $this->configService->getAppValue("akey");
 
         $tmpl = new Template('duo', 'challenge');
-        $tmpl->assign('user', $user->getUID());
+
+        // Prepend NetBIOS domain name to username (if enabled)
+        $netbiosDomain = $this->configService->getAppValue("netbiosDomain");
+        if ($this->configService->getAppValue("netbiosEnabled") == true) {
+            $netbiosDomain = $this->configService->getAppValue("netbiosDomain");
+            $userName = $user->getUID();
+            $fullUser = "$netbiosDomain\\$userName";
+            $tmpl->assign('user', $fullUser);
+        } else {
+            $tmpl->assign('user', $user->getUID());
+        }
+
         $tmpl->assign('IKEY', $ikey);
         $tmpl->assign('SKEY', $skey);
         $tmpl->assign('AKEY', $akey);
