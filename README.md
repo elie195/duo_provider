@@ -13,6 +13,7 @@ Two-factor authentication (2FA) framework was added to ownCloud 9.1. This projec
 
 **Update - 6/2/2017:** This plugin is verified working on version 10.0.2RC1
 
+
 ## Requirements
 
 - PHP >=5.6 (Duo SDK requirement) - See guide at the bottom for Ubuntu 14.04 instructions
@@ -75,6 +76,7 @@ If you're using LDAP, the 2FA won't work right off the bat, since ownCloud refer
 To change the LDAP settings so that the internal identifier uses the username instead of the UUID, do the following (I'm using AD LDAP, so the attributes are named accordingly): Go into "Expert" mode in the ownCloud LDAP settings, and set "Internal Username Attribute" to "sAMAccountName". Note that this only affects new users. Existing users must be deleted and recreated, so use at your own risk.
 
 ### Added features
+- August 12, 2017: Added ability to prepend usernames with a custom NetBIOS domain name before usernames are sent to Duo for validation. For example, if this feature is enabled and NetBIOS domain is set to "TEST", an ownCloud user with username "user" will become "TEST\user" when sending the username to Duo.([https://github.com/elie195/duo_provider/issues/11](https://github.com/elie195/duo_provider/issues/11))
 - July 6, 2017: Added proxy support for the "IP Bypass" feature. When IP Bypass is enabled, the plugin will now attempt to parse the "X-Forwarded-For" header, if present. If it's not present, it will fallback to using the source IP. **Note: enabling IP Bypass can be a security risk. Only enable it if you know what you're doing!**
 - June 2, 2017: Migrated the app's settings into the ownCloud UI instead of using a configuration file (duo.ini). This was done in-order to avoid tripping the built-in ownCloud file integrity check (see [issue #6](https://github.com/elie195/duo_provider/issues/6) for more details). For this reason, please delete/move your current `duo.ini` config file so that ownCloud won't identify it as an "extra" file. The `duo_php` SDK has also been updated to the latest version available on [Github](https://github.com/duosecurity/duo_php).
 - August 27, 2016: You may now configure specific client IP addresses to bypass Duo 2FA in duo.ini. Check duo.ini.example for more details. ([https://github.com/elie195/duo_provider/issues/3](https://github.com/elie195/duo_provider/issues/3))
