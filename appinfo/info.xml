@@ -11,6 +11,14 @@
 	<screenshot>https://github.com/elie195/duo_provider/raw/master/screenshots/auth.jpg</screenshot>
 	<summary>Duo Two-Factor-Auth Provider for ownCloud 10.0+</summary>
 	<ocsid>174748</ocsid>
+	<documentation>
+		<user>https://github.com/elie195/duo_provider/blob/master/README.md</user>
+		<admin>https://github.com/elie195/duo_provider/blob/master/README.md</admin>
+		<developer>https://github.com/elie195/duo_provider/blob/master/README.md</developer>
+	</documentation>
+	<website>https://github.com/elie195/duo_provider</website>
+	<bugs>https://github.com/elie195/duo_provider/issues</bugs>
+	<repository type="git">https://github.com/elie195/duo_provider.git</repository>
 	<types>
 		<prelogin/>
 		<authentication/>
