@@ -5,7 +5,7 @@
 	<description>Duo Two-Factor-Auth Provider for ownCloud 10.0+</description>
 	<licence>AGPL</licence>
 	<author>El-ad Blech</author>
-	<version>2.2.0</version>
+	<version>2.3.0</version>
 	<namespace>Duo</namespace>
 	<category>security</category>
 	<screenshot>https://github.com/elie195/duo_provider/raw/master/screenshots/auth.jpg</screenshot>

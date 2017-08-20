@@ -43,6 +43,21 @@
           $('#skey-input').attr("type","password");
         });
 
+        function genAKey() {
+          var genUrl = OC.generateUrl('/apps/duo/gen-akey');
+          $.get(genUrl).done(function(response) {
+            console.log(response);
+            return response;
+          });
+        }
+
+        $('#gen-btn').click(function() {
+          var genUrl = OC.generateUrl('/apps/duo/gen-akey');
+          $.get(genUrl).done(function(response) {
+            $('#akey-input').val(response);
+          });
+        });
+
         $('#save-btn').click(function() {
           var ikey = $('#ikey-input').val();
           var skey = $('#skey-input').val();
@@ -65,7 +80,14 @@
           }
           //akey is optional, so we set it to a predefined value if it's not set/specified
           if (!akey) {
-            akey = "8749032634b9c0ee14fa785c3e59b424a13d2073";
+            var genUrl = OC.generateUrl('/apps/duo/gen-akey');
+            var request = new XMLHttpRequest();
+            request.open('GET', genUrl, false);  // `false` makes the request synchronous
+            request.send(null);
+            if (request.status === 200) {
+              $('#akey-input').val(request.responseText);
+            }
+            //akey = "8749032634b9c0ee14fa785c3e59b424a13d2073";
           }
 
           var url = OC.generateUrl('/apps/duo/save-settings');

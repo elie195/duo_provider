@@ -48,7 +48,7 @@ class AdminController extends Controller {
      */
     public function index() {
         if (!$this->configService->hasValue("akey")) {
-            $this->configService->setAppValue("akey","8749032634b9c0ee14fa785c3e59b424a13d2073");
+            $this->configService->setAppValue("akey",$this->genAKey());
         }
         $params = [
             'ikey' => $this->configService->getAppValue("ikey"),
@@ -98,4 +98,12 @@ class AdminController extends Controller {
         $this->configService->deleteAppValues();
         return true;
     }
+
+    /**
+     * @return string
+     */
+    public function genAKey($num_bytes=30) {
+        return bin2hex(openssl_random_pseudo_bytes($num_bytes));
+    }
+
 }

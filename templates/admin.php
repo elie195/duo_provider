@@ -14,7 +14,7 @@ style('duo', 'style');
       <p><label for="host-input">Hostname: </label>
       <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com" autocomplete="off"></p>
       <p><label for="akey-input">AKEY: </label>
-      <input class="duo-text indent" id="akey-input" type="text" value="<?php p($_['akey'])?>" autocomplete="off"></p>
+      <input class="duo-text indent" id="akey-input" type="text" value="<?php p($_['akey'])?>" autocomplete="off"><input type="button" id="gen-btn" title="Generate" value="Generate"></p>
       <hr>
       <div id="advcd-div">
       <p><label for="ip-bypass-list">IP Bypass List  <small>(one <strong>IP</strong> per line):</label>

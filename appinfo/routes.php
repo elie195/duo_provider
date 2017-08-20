@@ -23,5 +23,6 @@ return [
     'routes' => [
         ['name' => 'admin#save_settings', 'url' => '/save-settings', 'verb' => 'POST'],
         ['name' => 'admin#reset_settings', 'url' => '/reset-settings', 'verb' => 'GET'],
+        ['name' => 'admin#gen_akey', 'url' => '/gen-akey', 'verb' => 'GET'],
     ]
 ];
