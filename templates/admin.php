@@ -19,7 +19,7 @@ style('duo', 'style');
       <div id="advcd-div">
       <p><label for="ip-bypass-list">IP Bypass List  <small>(one <strong>IP</strong> per line):</label>
       <!-- Ugly like this due to spaces when elements are separated with new lines -->
-      <textarea id="ip-bypass-list" rows="7"><?php foreach(explode(',', $_['ipList']) as $value): ?><?php p($value . "\r\n")?><?php endforeach; ?></textarea>
+      <textarea id="ip-bypass-list" rows="7"><?php foreach(explode(',', $_['ipList']) as $value): ?><?php p($value . "\r\n")?><?php endforeach; ?><?php foreach(explode(',', $_['networkList']) as $value): ?><?php p($value . "\r\n")?><?php endforeach; ?></textarea>
       <input id="ip-bypass-checkbox" class="checkbox indent" type="checkbox" <?php p($_['ipEnabled']==true ? 'checked' : '')?>>
       <label for="ip-bypass-checkbox"> IP Bypass Enabled?  <small>(advanced)</small></label></p>
       <input id="ldap-bypass-checkbox" class="checkbox indent" type="checkbox" <?php p($_['ldapEnabled']==true ? 'checked' : '')?>>

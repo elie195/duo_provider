@@ -85,7 +85,7 @@ To change the LDAP settings so that the internal identifier uses the username in
 
 ### Misc
 
-I have included an "AKEY" in the configuration by default. **If the "AKEY" field is empty when Duo settings are saved, the default "AKEY" value will be used.** The "AKEY" is an application-specific secret string. If strong security is important to you (hey, you're setting up a security-oriented plugin here afterall), feel free to generate your own "AKEY" by executing the following Python code:
+As of version 2.3.0, there is now a "Generate AKEY" button in the admin settings panel. This button will automatically generate a 40-bit AKEY. If an AKEY is not entered, the AKEY will be automatically generated. The "AKEY" is an application-specific secret string. If strong security is important to you (hey, you're setting up a security-oriented plugin here afterall), feel free to generate your own "AKEY" by executing the following Python code:
 
     import os, hashlib
     print hashlib.sha1(os.urandom(32)).hexdigest()
