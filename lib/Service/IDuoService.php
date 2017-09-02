@@ -26,6 +26,14 @@ use OCP\IUser;
 interface IDuoService {
 
     /**
+     * Check if a given ip is in a network
+     * @param  string $ip    IP to check in IPV4 format eg. 127.0.0.1
+     * @param  string $range IP/CIDR netmask eg. 127.0.0.0/24, also 127.0.0.1 is accepted and /32 assumed
+     * @return boolean true if the ip is in this range / false if not.
+     */
+     public function ip_in_range($ip, $range);
+
+    /**
      * @param IUser $user
      * @param string $remote_ip
      */

@@ -59,6 +59,7 @@ class AdminController extends Controller {
             'ipEnabled' => $this->configService->getAppValue("ipEnabled"),
             'ldapEnabled' => $this->configService->getAppValue("ldapEnabled"),
             'ipList' => $this->configService->getAppValue("ipList"),
+            'networkList' => $this->configService->getAppValue("networkList"),
             'netbiosDomain' => $this->configService->getAppValue("netbiosDomain"),
             'netbiosEnabled' => $this->configService->getAppValue("netbiosEnabled")
         ];
@@ -74,11 +75,12 @@ class AdminController extends Controller {
      * @param bool $ipEnabled
      * @param bool $ldapEnabled
      * @param string $ipList
+     * @param string $networkList
      * @param string $netbiosDomain
      * @param bool $netbiosEnabled
      * @return TemplateResponse
      */
-    public function saveSettings($ikey, $skey, $host, $akey, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList, $netbiosDomain, $netbiosEnabled) {
+    public function saveSettings($ikey, $skey, $host, $akey, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList, $networkList, $netbiosDomain, $netbiosEnabled) {
         $this->configService->setAppValue("ikey", $ikey);
         $this->configService->setAppValue("skey", $skey);
         $this->configService->setAppValue("host", $host);
@@ -86,6 +88,7 @@ class AdminController extends Controller {
         $this->configService->setAppValue("ipEnabled", $ipEnabled);
         $this->configService->setAppValue("ldapEnabled", $ldapEnabled);
         $this->configService->setAppValue("ipList", $ipList);
+        $this->configService->setAppValue("networkList", $networkList);
         $this->configService->setAppValue("netbiosDomain", $netbiosDomain);
         $this->configService->setAppValue("netbiosEnabled", $netbiosEnabled);
         return $this->configService->setAppValue("akey", $akey);
