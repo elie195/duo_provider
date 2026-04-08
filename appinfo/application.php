@@ -69,6 +69,15 @@ class Application extends App
             );
         });
 
+        $container->registerService('CallbackController', function ($c) {
+            return new CallbackController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('ServerContainer')->getSession(),
+                $c->query('ServerContainer')->getURLGenerator()
+            );
+        });
+
         $container->registerService('Logger', function($c) {
             return $c->query('ServerContainer')->getLogger();
         });

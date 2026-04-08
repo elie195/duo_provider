@@ -136,13 +136,7 @@ class DuoService implements IDuoService {
         $clientId     = $this->configService->getAppValue("client_id");
         $clientSecret = $this->configService->getAppValue("client_secret");
         $host         = $this->configService->getAppValue("host");
-
-        // Use the 2FA challenge page as the redirect URI — it's already
-        // accessible during the 2FA flow without a separate public route.
-        $redirectUri = $this->urlGenerator->linkToRouteAbsolute(
-            'core.TwoFactorChallenge.showChallenge',
-            ['challengeProviderId' => 'duo']
-        );
+        $redirectUri  = $this->urlGenerator->linkToRouteAbsolute('duo.callback.index');
 
         return new Client($clientId, $clientSecret, $host, $redirectUri);
     }
@@ -161,34 +155,34 @@ class DuoService implements IDuoService {
             $duoClient = $this->buildDuoClient();
             $duoClient->healthCheck();
 
-            // Check if this is a return from Duo (params on the request URL)
-            $returnedState = $this->session->get('duo_return_state_param') ?? '';
-            $returnedCode  = $this->session->get('duo_return_code_param') ?? '';
+            $hasPendingCode = !empty($this->session->get('duo_code'));
 
-            // ownCloud passes the full request to the template renderer via IRequest.
-            // We need to inject IRequest — see note below.
-            // For now, read from $_GET directly as a fallback:
-            $incomingState = $this->request->getParam('state', '');
-            $incomingCode  = $this->request->getParam('duo_code', '');
+            $tmpl->assign('duo_code_pending', $hasPendingCode);
+            $tmpl->assign('duo_error', null);
 
-            if (!empty($incomingCode) && !empty($incomingState)) {
-                // Returning from Duo — store in session for verifyChallenge()
-                $this->session->set('duo_code', $incomingCode);
-                $this->session->set('duo_return_state', $incomingState);
+            if (!$hasPendingCode) {
+                // Generate a random nonce for CSRF protection
+                $nonce = bin2hex(random_bytes(16));
+
+                // Encode both the nonce AND the current session ID into state,
+                // so we can restore the session when Duo redirects back.
+                // Format: base64(json({nonce, sid}))
+                $sessionId = session_id();
+                $statePayload = base64_encode(json_encode([
+                    'nonce' => $nonce,
+                    'sid'   => $sessionId,
+                ]));
+
+                $this->session->set('duo_nonce', $nonce);
+                $this->session->set('duo_username', $user->getUID());
+
+                $duoUsername = $this->resolveDuoUsername($user);
+                $authUrl = $duoClient->createAuthUrl($duoUsername, $statePayload);
+
+                $tmpl->assign('duo_auth_url', $authUrl);
+            } else {
                 $tmpl->assign('duo_auth_url', '');
-                $tmpl->assign('duo_code_pending', true);
-                return $tmpl;
             }
-
-            $state = $duoClient->generateState();
-            $this->session->set('duo_state', $state);
-            $this->session->set('duo_username', $user->getUID());
-
-            $duoUsername = $this->resolveDuoUsername($user);
-            $authUrl = $duoClient->createAuthUrl($duoUsername, $state);
-
-            $tmpl->assign('duo_auth_url', $authUrl);
-            $tmpl->assign('duo_code_pending', false);
 
         } catch (DuoException $e) {
             $this->configService->log('Duo error: ' . $e->getMessage());
@@ -210,23 +204,15 @@ class DuoService implements IDuoService {
     public function validateChallenge(IUser $user, $challenge)
     {
         $code          = $this->session->get('duo_code');
-        $savedState    = $this->session->get('duo_state');
-        $returnState   = $this->session->get('duo_return_state');
+        $savedNonce    = $this->session->get('duo_nonce');
         $savedUsername = $this->session->get('duo_username');
 
         $this->session->remove('duo_code');
-        $this->session->remove('duo_state');
-        $this->session->remove('duo_return_state');
+        $this->session->remove('duo_nonce');
         $this->session->remove('duo_username');
 
-        if (empty($code) || empty($savedState) || $savedUsername !== $user->getUID()) {
+        if (empty($code) || empty($savedNonce) || $savedUsername !== $user->getUID()) {
             $this->configService->log('Duo validation failed: missing/mismatched session for ' . $user->getUID());
-            return false;
-        }
-
-        // Verify the returned state matches what we sent
-        if ($returnState !== $savedState) {
-            $this->configService->log('Duo state mismatch for ' . $user->getUID());
             return false;
         }
 
