@@ -1,0 +1,12 @@
+{
+    "name": "elie195/duo_provider",
+    "description": "Duo Security Universal Prompt (v4) two-factor authentication provider for ownCloud",
+    "require": {
+        "duosecurity/duo_universal_php": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "OCA\\Duo\\": "lib/"
+        }
+    }
+}

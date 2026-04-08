@@ -22,12 +22,23 @@
 namespace OCA\Duo\Service;
 
 use OCP\IUser;
+use OCP\ISession;
+use OCP\IURLGenerator;
 use OCP\Template;
+
+use Duo\DuoUniversal\Client;
+use Duo\DuoUniversal\DuoException;
 
 class DuoService implements IDuoService {
 
     private $appName;
     private $configService;
+
+    /** @var ISession */
+    private $session;
+ 
+    /** @var IURLGenerator */
+    private $urlGenerator;
 
     /**
      * Check if a given ip is in a network
@@ -48,10 +59,12 @@ class DuoService implements IDuoService {
         return (($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));
     }  
 
-    public function __construct($appName, ConfigService $configService)
+    public function __construct($appName, ConfigService $configService, ISession $session, IURLGenerator $urlGenerator)
     {
         $this->appName = $appName;
         $this->configService = $configService;
+        $this->session = $session;
+        $this->urlGenerator = $urlGenerator;
     }
 
 
@@ -111,57 +124,108 @@ class DuoService implements IDuoService {
         return false;
     }
 
-    public function setCsp()
+    /**
+     * Build a Duo Client instance from config
+     *
+     * @return Client
+     * @throws DuoException
+     */
+    private function buildDuoClient(): Client
     {
-        $csp = new \OCP\AppFramework\Http\ContentSecurityPolicy();
-        $csp->addAllowedChildSrcDomain('https://*.duosecurity.com');
-        $csp->addAllowedStyleDomain('https://*.duosecurity.com');
-        $csp->addAllowedFrameDomain('https://*.duosecurity.com');
-        return $csp;
+        $clientId     = $this->configService->getAppValue("client_id");
+        $clientSecret = $this->configService->getAppValue("client_secret");
+        $host         = $this->configService->getAppValue("host");
+        $redirectUri  = $this->urlGenerator->linkToRouteAbsolute('duo.callback.index');
+ 
+        return new Client($clientId, $clientSecret, $host, $redirectUri);
     }
 
+    /**
+     * Build the Duo auth URL, store state + username in session, return the challenge template.
+     *
+     * @param IUser $user
+     * @return Template
+     */
     public function renderTemplate(IUser $user)
     {
-        $ikey = $this->configService->getAppValue("ikey");
-        $skey = $this->configService->getAppValue("skey");
-        $host = $this->configService->getAppValue("host");
-        $akey = $this->configService->getAppValue("akey");
-
         $tmpl = new Template('duo', 'challenge');
-
-        // Prepend NetBIOS domain name to username (if enabled)
-        $netbiosDomain = $this->configService->getAppValue("netbiosDomain");
-        if ($this->configService->getAppValue("netbiosEnabled") == true) {
-            $netbiosDomain = $this->configService->getAppValue("netbiosDomain");
-            $userName = $user->getUID();
-            $fullUser = "$netbiosDomain\\$userName";
-            $tmpl->assign('user', $fullUser);
-        } else {
-            $tmpl->assign('user', $user->getUID());
+ 
+        try {
+            $duoClient = $this->buildDuoClient();
+            $duoClient->healthCheck();
+ 
+            $state = $duoClient->generateState();
+            $this->session->set('duo_state', $state);
+            $this->session->set('duo_username', $user->getUID());
+ 
+            // Resolve the username to send to Duo (optionally prepend NetBIOS domain)
+            $duoUsername = $this->resolveDuoUsername($user);
+ 
+            $authUrl = $duoClient->createAuthUrl($duoUsername, $state);
+ 
+            // Check if we're returning from the Duo callback
+            // (duo_code already stored in session by CallbackController)
+            $hasPendingCode = !empty($this->session->get('duo_code'));
+ 
+            $tmpl->assign('duo_auth_url', $authUrl);
+            $tmpl->assign('duo_code_pending', $hasPendingCode);
+ 
+        } catch (DuoException $e) {
+            $this->configService->log('Duo health check or auth URL generation failed: ' . $e->getMessage());
+            $tmpl->assign('duo_auth_url', '');
+            $tmpl->assign('duo_code_pending', false);
+            $tmpl->assign('duo_error', $e->getMessage());
         }
-
-        $tmpl->assign('IKEY', $ikey);
-        $tmpl->assign('SKEY', $skey);
-        $tmpl->assign('AKEY', $akey);
-        $tmpl->assign('HOST', $host);
+ 
         return $tmpl;
     } 
 
     /**
+     * Validate the Duo challenge by exchanging the stored authorization code.
+     *
      * @param IUser $user
-     * @param string $challenge
+     * @param string $challenge  (not used directly — code comes from session)
+     * @return bool
      */
     public function validateChallenge(IUser $user, $challenge)
     {
-        $ikey = $this->configService->getAppValue("ikey");
-        $skey = $this->configService->getAppValue("skey");
-        $akey = $this->configService->getAppValue("akey");
-        $resp = \Duo\Web::verifyResponse($ikey, $skey, $akey, $challenge);
-
-        if ($resp) {
-            return true;
+        $code          = $this->session->get('duo_code');
+        $savedState    = $this->session->get('duo_state');
+        $savedUsername = $this->session->get('duo_username');
+ 
+        // Always clean up session values
+        $this->session->remove('duo_code');
+        $this->session->remove('duo_state');
+        $this->session->remove('duo_username');
+ 
+        if (empty($code) || empty($savedState) || $savedUsername !== $user->getUID()) {
+            $this->configService->log('Duo validation failed: missing or mismatched session state for user ' . $user->getUID());
+            return false;
         }
-        return false;
+ 
+        try {
+            $duoClient   = $this->buildDuoClient();
+            $duoUsername = $this->resolveDuoUsername($user);
+            $duoClient->exchangeAuthorizationCodeFor2FAResult($code, $duoUsername);
+            return true;
+        } catch (DuoException $e) {
+            $this->configService->log('Duo exchangeAuthorizationCodeFor2FAResult failed: ' . $e->getMessage());
+            return false;
+        }
+    }
 
+    /**
+     * Resolve the username to send to Duo, applying NetBIOS domain prepending if configured.
+     *
+     * @param IUser $user
+     * @return string
+     */
+    private function resolveDuoUsername(IUser $user): string
+    {
+        if ($this->configService->getAppValue("netbiosEnabled") == true) {
+            $netbiosDomain = $this->configService->getAppValue("netbiosDomain");
+            return "$netbiosDomain\\" . $user->getUID();
+        }
+        return $user->getUID();
     }
 }

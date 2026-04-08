@@ -5,7 +5,7 @@
 	<description>Duo Two-Factor-Auth Provider for ownCloud 10.0+</description>
 	<licence>AGPL</licence>
 	<author>El-ad Blech</author>
-	<version>2.5.2</version>
+	<version>3.0.0</version>
 	<namespace>Duo</namespace>
 	<category>security</category>
 	<screenshot>https://github.com/elie195/duo_provider/raw/master/screenshots/auth.jpg</screenshot>
@@ -20,8 +20,8 @@
 	<bugs>https://github.com/elie195/duo_provider/issues</bugs>
 	<repository type="git">https://github.com/elie195/duo_provider.git</repository>
 	<types>
-		<prelogin/>
-		<authentication/>
+		<prelogin />
+		<authentication />
 	</types>
 
 	<two-factor-providers>
@@ -30,6 +30,6 @@
 
 	<dependencies>
 		<owncloud min-version="10.0" max-version="10" />
-		<php min-version="5.6" max-version="7.9" />
+		<php min-version="7.4" max-version="8.9" />
 	</dependencies>
 </info>

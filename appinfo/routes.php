@@ -23,6 +23,9 @@ return [
     'routes' => [
         ['name' => 'admin#save_settings', 'url' => '/save-settings', 'verb' => 'POST'],
         ['name' => 'admin#reset_settings', 'url' => '/reset-settings', 'verb' => 'GET'],
-        ['name' => 'admin#gen_akey', 'url' => '/gen-akey', 'verb' => 'GET'],
+        
+        // Duo Universal Prompt v4 callback — Duo redirects here after authentication
+        // This route must be public (no login required) since the user is mid-authentication
+        ['name' => 'callback#index', 'url' => '/callback', 'verb' => 'GET'],
     ]
 ];

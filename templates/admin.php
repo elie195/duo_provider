@@ -9,14 +9,12 @@ style('duo', 'style');
     <div class="box" id="duo-settings">
       <input class="fake" id="fake-username" type="text" name="username">
       <input class="fake" id="fake-password" type="password" name="password">
-      <p><label for="ikey-input">IKEY: </label>
-      <input class="duo-text indent" id="ikey-input" type="text" value="<?php p($_['ikey'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
-      <p><label for="skey-input">SKEY: </label>
-      <input class="duo-text indent" id="skey-input" type="text" value="<?php p($_['skey'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
-      <p><label for="host-input">Hostname: </label>
+      <p><label for="client-id-input">Client ID: </label>
+      <input class="duo-text indent" id="client-id-input" type="text" value="<?php p($_['client_id'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
+      <p><label for="client-secret-input">Client Secret: </label>
+      <input class="duo-text indent" id="client-secret-input" type="text" value="<?php p($_['client_secret'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
+      <p><label for="host-input">API Hostname: </label>
       <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com" autocomplete="off" /></p>
-      <p><label for="akey-input">AKEY: </label>
-      <input class="duo-text indent" id="akey-input" type="text" value="<?php p($_['akey'])?>" autocomplete="off" /><input type="button" id="gen-btn" title="Generate" value="Generate" /></p>
       <hr>
       <div id="advcd-div">
       <p><label for="ip-bypass-list">IP Bypass List  <small>(one <strong>IP</strong> or <strong>Network (CIDR)</strong> per line):</label>

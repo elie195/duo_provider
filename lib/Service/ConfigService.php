@@ -66,6 +66,10 @@ class ConfigService {
         $this->duoConfig->setAppValue($this->appName, $key, $value);
     }
 
+    public function deleteAppValue($key) {
+        $this->duoConfig->deleteAppValue($this->appName, $key);
+    }
+
     public function deleteAppValues() {
         $this->duoConfig->deleteAppValues($this->appName);
     }

@@ -43,34 +43,53 @@ class AdminController extends Controller {
     }
 
     /**
+     * Migrate legacy ikey/skey config keys to client_id/client_secret on first load.
+     * Safe to call repeatedly — only runs if old keys exist and new ones are absent.
+     */
+    private function migrateLegacyKeys() {
+        $oldIkey = $this->configService->getAppValue("ikey");
+        $oldSkey = $this->configService->getAppValue("skey");
+ 
+        if (!empty($oldIkey) && !$this->configService->hasValue("client_id")) {
+            $this->configService->setAppValue("client_id", $oldIkey);
+            $this->configService->deleteAppValue("ikey");
+        }
+        if (!empty($oldSkey) && !$this->configService->hasValue("client_secret")) {
+            $this->configService->setAppValue("client_secret", $oldSkey);
+            $this->configService->deleteAppValue("skey");
+        }
+        // Remove legacy akey — not used in v4
+        if ($this->configService->hasValue("akey")) {
+            $this->configService->deleteAppValue("akey");
+        }
+    }
+
+    /**
      * @AdminRequired
      * @return TemplateResponse
      */
     public function index() {
-        if (!$this->configService->hasValue("akey")) {
-            $this->configService->setAppValue("akey",$this->genAKey());
-        }
+        $this->migrateLegacyKeys();
+ 
         $params = [
-            'ikey' => $this->configService->getAppValue("ikey"),
-            'skey' => $this->configService->getAppValue("skey"),
-            'host' => $this->configService->getAppValue("host"),
-            'akey' => $this->configService->getAppValue("akey"),
-            'globalEnabled' => $this->configService->getAppValue("globalEnabled"),
-            'ipEnabled' => $this->configService->getAppValue("ipEnabled"),
-            'ldapEnabled' => $this->configService->getAppValue("ldapEnabled"),
-            'ipList' => $this->configService->getAppValue("ipList"),
-            'networkList' => $this->configService->getAppValue("networkList"),
-            'netbiosDomain' => $this->configService->getAppValue("netbiosDomain"),
-            'netbiosEnabled' => $this->configService->getAppValue("netbiosEnabled")
+            'client_id'      => $this->configService->getAppValue("client_id"),
+            'client_secret'  => $this->configService->getAppValue("client_secret"),
+            'host'           => $this->configService->getAppValue("host"),
+            'globalEnabled'  => $this->configService->getAppValue("globalEnabled"),
+            'ipEnabled'      => $this->configService->getAppValue("ipEnabled"),
+            'ldapEnabled'    => $this->configService->getAppValue("ldapEnabled"),
+            'ipList'         => $this->configService->getAppValue("ipList"),
+            'networkList'    => $this->configService->getAppValue("networkList"),
+            'netbiosDomain'  => $this->configService->getAppValue("netbiosDomain"),
+            'netbiosEnabled' => $this->configService->getAppValue("netbiosEnabled"),
         ];
         return new TemplateResponse($this->appName, 'admin', $params, 'admin');
     }
 
     /**
-     * @param string $ikey
-     * @param string $skey
+     * @param string $client_id
+     * @param string $client_secret
      * @param string $host
-     * @param string $akey
      * @param bool $globalEnabled
      * @param bool $ipEnabled
      * @param bool $ldapEnabled
@@ -78,35 +97,28 @@ class AdminController extends Controller {
      * @param string $networkList
      * @param string $netbiosDomain
      * @param bool $netbiosEnabled
-     * @return TemplateResponse
+     * @return DataResponse
      */
-    public function saveSettings($ikey, $skey, $host, $akey, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList, $networkList, $netbiosDomain, $netbiosEnabled) {
-        $this->configService->setAppValue("ikey", $ikey);
-        $this->configService->setAppValue("skey", $skey);
-        $this->configService->setAppValue("host", $host);
-        $this->configService->setAppValue("globalEnabled", $globalEnabled);
-        $this->configService->setAppValue("ipEnabled", $ipEnabled);
-        $this->configService->setAppValue("ldapEnabled", $ldapEnabled);
-        $this->configService->setAppValue("ipList", $ipList);
-        $this->configService->setAppValue("networkList", $networkList);
-        $this->configService->setAppValue("netbiosDomain", $netbiosDomain);
+    public function saveSettings($client_id, $client_secret, $host, $globalEnabled, $ipEnabled, $ldapEnabled, $ipList, $networkList, $netbiosDomain, $netbiosEnabled) {
+        $this->configService->setAppValue("client_id",      $client_id);
+        $this->configService->setAppValue("client_secret",  $client_secret);
+        $this->configService->setAppValue("host",           $host);
+        $this->configService->setAppValue("globalEnabled",  $globalEnabled);
+        $this->configService->setAppValue("ipEnabled",      $ipEnabled);
+        $this->configService->setAppValue("ldapEnabled",    $ldapEnabled);
+        $this->configService->setAppValue("ipList",         $ipList);
+        $this->configService->setAppValue("networkList",    $networkList);
+        $this->configService->setAppValue("netbiosDomain",  $netbiosDomain);
         $this->configService->setAppValue("netbiosEnabled", $netbiosEnabled);
-        return $this->configService->setAppValue("akey", $akey);
+        return new DataResponse(['status' => 'success']);
     }
 
     /**
-     * @return bool
+     * @return DataResponse
      */
     public function resetSettings() {
         $this->configService->deleteAppValues();
-        return true;
-    }
-
-    /**
-     * @return string
-     */
-    public function genAKey($num_bytes=30) {
-        return bin2hex(openssl_random_pseudo_bytes($num_bytes));
+        return new DataResponse(['status' => 'success']);
     }
 
 }

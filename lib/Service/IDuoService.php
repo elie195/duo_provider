@@ -45,15 +45,10 @@ interface IDuoService {
     public function renderTemplate(IUser $user);
 
     /**
-     */
-    public function setCsp();
-
-    /**
      * @param IUser $user
      * @param string $challenge
      */
     public function validateChallenge(IUser $user, $challenge);
-
 
     /**
      * Get IP address of client (either actual IP or from X-Forwarded-For header(s))

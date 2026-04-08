@@ -20,16 +20,12 @@
 
 namespace OCA\Duo\Provider;
 
-use OCP\Authentication\TwoFactorAuth\IProvider2;
+use OCP\Authentication\TwoFactorAuth\IProvider;
 use OCA\Duo\Service\DuoService;
 use OCP\IUser;
 use OCP\Template;
-use OCP\IConfig;
 
-require_once 'duo/lib/Web.php';
-
-
-class DuoProvider implements IProvider2 {
+class DuoProvider implements IProvider {
 
 	/** @var DuoService */
         private $duoService;
@@ -37,29 +33,30 @@ class DuoProvider implements IProvider2 {
 	/**
 	 * @param DuoService $duoService
 	 */
-        public function __construct(DuoService $duoService) {
+    public function __construct(DuoService $duoService) {
 		$this->duoService = $duoService;
-                /**
-                * 
-                * Define getallheaders for nginx (issue 18) 
-                *
-                */
-                if (!function_exists('getallheaders'))
-                { 
-                    function getallheaders() 
-                    { 
-                        $headers = []; 
-                        foreach ($_SERVER as $name => $value) 
-                        { 
-                            if (substr($name, 0, 5) == 'HTTP_') 
-                            { 
-                                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value; 
-                            } 
-                        } 
-                        return $headers; 
-                    } 
-                } 
-        }
+
+		/**
+		* 
+		* Define getallheaders for nginx (issue 18) 
+		*
+		*/
+		if (!function_exists('getallheaders'))
+		{ 
+			function getallheaders() 
+			{ 
+				$headers = []; 
+				foreach ($_SERVER as $name => $value) 
+				{ 
+					if (substr($name, 0, 5) == 'HTTP_') 
+					{ 
+						$headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value; 
+					} 
+				} 
+				return $headers; 
+			} 
+		} 
+    }
 
 
 	/**
@@ -90,17 +87,7 @@ class DuoProvider implements IProvider2 {
 	}
 
 	/**
-         * Get the Content Security Policy for the template (required for showing external content, otherwise optional)
-         *
-         * @return \OCP\AppFramework\Http\ContentSecurityPolicy
-         */
-
-	public function getCSP() {
-		return $this->duoService->setCsp();
-        }
-
-	/**
-	 * Get the template for rending the 2FA provider view
+	 * Get the template for rendering the 2FA provider view
 	 *
 	 * @param IUser $user
 	 * @return Template
@@ -127,9 +114,9 @@ class DuoProvider implements IProvider2 {
 	 */
 	public function isTwoFactorAuthEnabledForUser(IUser $user) {
 		$headers = getallheaders();
-                // getClient returns either the X-Forwarded-For IP(s), if present, or the client remote IP
+        // getClient returns either the X-Forwarded-For IP(s), if present, or the client remote IP
 		$remote_ip = $this->duoService->getClient($headers);
-                return $this->duoService->userEnabled($user, $remote_ip);
+        return $this->duoService->userEnabled($user, $remote_ip);
 	}
 
 }

@@ -23,6 +23,10 @@ namespace OCA\Duo\AppInfo;
 
 use OCP\AppFramework\App;
 use OCA\Duo\Controller\AdminController;
+use OCA\Duo\Controller\CallbackController;
+use OCA\Duo\Service\ConfigService;
+use OCA\Duo\Service\DuoService;
+use OCA\Duo\Service\IDuoService;
 
 class Application extends App
 {
@@ -33,22 +37,50 @@ class Application extends App
         $container = $this->getContainer();
 
         /**
+         * Services
+         */
+        $container->registerService('ConfigService', function ($c) {
+            return new ConfigService(
+                $c->query('Logger'),
+                $c->query('AppName'),
+                $c->query('ServerContainer')->getConfig()
+            );
+        });
+ 
+        $container->registerService('DuoService', function ($c) {
+            return new DuoService(
+                $c->query('AppName'),
+                $c->query('ConfigService'),
+                $c->query('ServerContainer')->getSession(),
+                $c->query('ServerContainer')->getURLGenerator()
+            );
+        });
+ 
+        $container->registerAlias(IDuoService::class, DuoService::class);
+
+        /**
          * Controllers
          */
         $container->registerService('AdminController', function($c) {
             return new AdminController(
-                $c->query('Logger'),
                 $c->query('AppName'),
                 $c->query('Request'),
-                $c->query('DuoService')
+                $c->query('ConfigService')
+            );
+        });
+
+        $container->registerService('CallbackController', function ($c) {
+            return new CallbackController(
+                $c->query('AppName'),
+                $c->query('Request'),
+                $c->query('ServerContainer')->getSession(),
+                $c->query('ServerContainer')->getURLGenerator()
             );
         });
 
         $container->registerService('Logger', function($c) {
             return $c->query('ServerContainer')->getLogger();
         });
-
-        $container->registerAlias(IDuoService::class, DuoService::class);
     }
 
     public function registerSettings() {
