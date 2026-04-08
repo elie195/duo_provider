@@ -136,7 +136,12 @@ class DuoService implements IDuoService {
         $clientId     = $this->configService->getAppValue("client_id");
         $clientSecret = $this->configService->getAppValue("client_secret");
         $host         = $this->configService->getAppValue("host");
-        $redirectUri  = $this->urlGenerator->linkToRouteAbsolute('duo.callback.index');
+
+        // Construct the URL to the standalone callback file directly.
+        // We can't use the app framework router here because OC blocks app
+        // routes during 2FA pending state via OC_Util::checkLoggedIn().
+        $baseUrl     = \OC::$server->getURLGenerator()->getAbsoluteURL('/');
+        $redirectUri = rtrim($baseUrl, '/') . '/apps/duo/duo_callback.php';
 
         return new Client($clientId, $clientSecret, $host, $redirectUri);
     }
