@@ -160,24 +160,29 @@ class DuoService implements IDuoService {
             $duoClient = $this->buildDuoClient();
             $duoClient->healthCheck();
 
+            // If returning from Duo callback, the code arrives as a query param.
+            // Store it in session now (we're in the correct session here) and
+            // set pending flag so the template auto-submits.
+            $incomingCode = isset($_GET['duo_code']) ? $_GET['duo_code'] : null;
+            if (!empty($incomingCode)) {
+                $this->session->set('duo_code', $incomingCode);
+            }
+
             $hasPendingCode = !empty($this->session->get('duo_code'));
 
-            $tmpl->assign('duo_code_pending', $hasPendingCode);
-            $tmpl->assign('duo_error', null);
-
             if (!$hasPendingCode) {
-                // Generate a random nonce for CSRF protection
-                $nonce = bin2hex(random_bytes(16));
+                $nonce       = bin2hex(random_bytes(16));
                 $this->session->set('duo_nonce', $nonce);
                 $this->session->set('duo_username', $user->getUID());
-
                 $duoUsername = $this->resolveDuoUsername($user);
                 $authUrl = $duoClient->createAuthUrl($duoUsername, $nonce);
-
                 $tmpl->assign('duo_auth_url', $authUrl);
             } else {
                 $tmpl->assign('duo_auth_url', '');
             }
+
+            $tmpl->assign('duo_code_pending', $hasPendingCode);
+            $tmpl->assign('duo_error', null);
 
         } catch (DuoException $e) {
             $this->configService->log('Duo error: ' . $e->getMessage());

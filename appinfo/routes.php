@@ -23,6 +23,5 @@ return [
     'routes' => [
         ['name' => 'admin#save_settings', 'url' => '/save-settings', 'verb' => 'POST'],
         ['name' => 'admin#reset_settings', 'url' => '/reset-settings', 'verb' => 'GET'],
-        //['name' => 'callback#index',       'url' => '/callback',       'verb' => 'GET'],
     ]
 ];

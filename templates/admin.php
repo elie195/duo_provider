@@ -1,5 +1,5 @@
 <?php
-script('duo', 'duo');
+script('duo', 'duo_admin');
 style('duo', 'style');
 ?>
 
