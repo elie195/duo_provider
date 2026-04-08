@@ -168,21 +168,11 @@ class DuoService implements IDuoService {
             if (!$hasPendingCode) {
                 // Generate a random nonce for CSRF protection
                 $nonce = bin2hex(random_bytes(16));
-
-                // Encode both the nonce AND the current session ID into state,
-                // so we can restore the session when Duo redirects back.
-                // Format: base64(json({nonce, sid}))
-                $sessionId = session_id();
-                $statePayload = base64_encode(json_encode([
-                    'nonce' => $nonce,
-                    'sid'   => $sessionId,
-                ]));
-
                 $this->session->set('duo_nonce', $nonce);
                 $this->session->set('duo_username', $user->getUID());
 
                 $duoUsername = $this->resolveDuoUsername($user);
-                $authUrl = $duoClient->createAuthUrl($duoUsername, $statePayload);
+                $authUrl = $duoClient->createAuthUrl($duoUsername, $nonce);
 
                 $tmpl->assign('duo_auth_url', $authUrl);
             } else {
@@ -209,15 +199,13 @@ class DuoService implements IDuoService {
     public function validateChallenge(IUser $user, $challenge)
     {
         $code          = $this->session->get('duo_code');
-        $savedNonce    = $this->session->get('duo_nonce');
         $savedUsername = $this->session->get('duo_username');
 
         $this->session->remove('duo_code');
-        $this->session->remove('duo_nonce');
         $this->session->remove('duo_username');
 
-        if (empty($code) || empty($savedNonce) || $savedUsername !== $user->getUID()) {
-            $this->configService->log('Duo validation failed: missing/mismatched session for ' . $user->getUID());
+        if (empty($code) || $savedUsername !== $user->getUID()) {
+            $this->configService->log('Duo validation failed for ' . $user->getUID());
             return false;
         }
 
