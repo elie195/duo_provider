@@ -23,7 +23,6 @@ namespace OCA\Duo\AppInfo;
 
 use OCP\AppFramework\App;
 use OCA\Duo\Controller\AdminController;
-use OCA\Duo\Controller\CallbackController;
 use OCA\Duo\Service\ConfigService;
 use OCA\Duo\Service\DuoService;
 use OCA\Duo\Service\IDuoService;
@@ -52,7 +51,8 @@ class Application extends App
                 $c->query('AppName'),
                 $c->query('ConfigService'),
                 $c->query('ServerContainer')->getSession(),
-                $c->query('ServerContainer')->getURLGenerator()
+                $c->query('ServerContainer')->getURLGenerator(),
+                $c->query('Request')
             );
         });
  
@@ -66,15 +66,6 @@ class Application extends App
                 $c->query('AppName'),
                 $c->query('Request'),
                 $c->query('ConfigService')
-            );
-        });
-
-        $container->registerService('CallbackController', function ($c) {
-            return new CallbackController(
-                $c->query('AppName'),
-                $c->query('Request'),
-                $c->query('ServerContainer')->getSession(),
-                $c->query('ServerContainer')->getURLGenerator()
             );
         });
 

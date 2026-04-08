@@ -59,12 +59,13 @@ class DuoService implements IDuoService {
         return (($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));
     }  
 
-    public function __construct($appName, ConfigService $configService, ISession $session, IURLGenerator $urlGenerator)
+    public function __construct($appName, ConfigService $configService, ISession $session, IURLGenerator $urlGenerator, \OCP\IRequest $request)
     {
         $this->appName = $appName;
         $this->configService = $configService;
         $this->session = $session;
         $this->urlGenerator = $urlGenerator;
+        $this->request = $request;
     }
 
 
@@ -135,8 +136,14 @@ class DuoService implements IDuoService {
         $clientId     = $this->configService->getAppValue("client_id");
         $clientSecret = $this->configService->getAppValue("client_secret");
         $host         = $this->configService->getAppValue("host");
-        $redirectUri  = $this->urlGenerator->linkToRouteAbsolute('duo.callback.index');
- 
+
+        // Use the 2FA challenge page as the redirect URI — it's already
+        // accessible during the 2FA flow without a separate public route.
+        $redirectUri = $this->urlGenerator->linkToRouteAbsolute(
+            'core.TwoFactorChallenge.showChallenge',
+            ['challengeProviderId' => 'duo']
+        );
+
         return new Client($clientId, $clientSecret, $host, $redirectUri);
     }
 
@@ -149,36 +156,49 @@ class DuoService implements IDuoService {
     public function renderTemplate(IUser $user)
     {
         $tmpl = new Template('duo', 'challenge');
- 
+
         try {
             $duoClient = $this->buildDuoClient();
             $duoClient->healthCheck();
- 
+
+            // Check if this is a return from Duo (params on the request URL)
+            $returnedState = $this->session->get('duo_return_state_param') ?? '';
+            $returnedCode  = $this->session->get('duo_return_code_param') ?? '';
+
+            // ownCloud passes the full request to the template renderer via IRequest.
+            // We need to inject IRequest — see note below.
+            // For now, read from $_GET directly as a fallback:
+            $incomingState = $this->request->getParam('state', '');
+            $incomingCode  = $this->request->getParam('duo_code', '');
+
+            if (!empty($incomingCode) && !empty($incomingState)) {
+                // Returning from Duo — store in session for verifyChallenge()
+                $this->session->set('duo_code', $incomingCode);
+                $this->session->set('duo_return_state', $incomingState);
+                $tmpl->assign('duo_auth_url', '');
+                $tmpl->assign('duo_code_pending', true);
+                return $tmpl;
+            }
+
             $state = $duoClient->generateState();
             $this->session->set('duo_state', $state);
             $this->session->set('duo_username', $user->getUID());
- 
-            // Resolve the username to send to Duo (optionally prepend NetBIOS domain)
+
             $duoUsername = $this->resolveDuoUsername($user);
- 
             $authUrl = $duoClient->createAuthUrl($duoUsername, $state);
- 
-            // Check if we're returning from the Duo callback
-            // (duo_code already stored in session by CallbackController)
-            $hasPendingCode = !empty($this->session->get('duo_code'));
- 
+
             $tmpl->assign('duo_auth_url', $authUrl);
-            $tmpl->assign('duo_code_pending', $hasPendingCode);
- 
+            $tmpl->assign('duo_code_pending', false);
+
         } catch (DuoException $e) {
-            $this->configService->log('Duo health check or auth URL generation failed: ' . $e->getMessage());
+            $this->configService->log('Duo error: ' . $e->getMessage());
             $tmpl->assign('duo_auth_url', '');
             $tmpl->assign('duo_code_pending', false);
             $tmpl->assign('duo_error', $e->getMessage());
         }
- 
+
         return $tmpl;
-    } 
+    }
 
     /**
      * Validate the Duo challenge by exchanging the stored authorization code.
@@ -191,25 +211,32 @@ class DuoService implements IDuoService {
     {
         $code          = $this->session->get('duo_code');
         $savedState    = $this->session->get('duo_state');
+        $returnState   = $this->session->get('duo_return_state');
         $savedUsername = $this->session->get('duo_username');
- 
-        // Always clean up session values
+
         $this->session->remove('duo_code');
         $this->session->remove('duo_state');
+        $this->session->remove('duo_return_state');
         $this->session->remove('duo_username');
- 
+
         if (empty($code) || empty($savedState) || $savedUsername !== $user->getUID()) {
-            $this->configService->log('Duo validation failed: missing or mismatched session state for user ' . $user->getUID());
+            $this->configService->log('Duo validation failed: missing/mismatched session for ' . $user->getUID());
             return false;
         }
- 
+
+        // Verify the returned state matches what we sent
+        if ($returnState !== $savedState) {
+            $this->configService->log('Duo state mismatch for ' . $user->getUID());
+            return false;
+        }
+
         try {
             $duoClient   = $this->buildDuoClient();
             $duoUsername = $this->resolveDuoUsername($user);
             $duoClient->exchangeAuthorizationCodeFor2FAResult($code, $duoUsername);
             return true;
         } catch (DuoException $e) {
-            $this->configService->log('Duo exchangeAuthorizationCodeFor2FAResult failed: ' . $e->getMessage());
+            $this->configService->log('Duo exchange failed: ' . $e->getMessage());
             return false;
         }
     }
