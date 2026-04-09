@@ -94,6 +94,7 @@ class DuoProvider implements IProvider {
 	 */
 	public function getTemplate(IUser $user) {
 		\OCP\Util::addScript('duo', 'duo');
+		\OCP\Util::addStyle('duo', 'style');
 		return $this->duoService->renderTemplate($user);
 	}
 

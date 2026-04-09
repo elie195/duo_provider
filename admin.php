@@ -19,12 +19,43 @@
  *
  */
 
-namespace OCA\Duo;
+$config = \OC::$server->getConfig();
 
-use OCA\Duo\AppInfo\Application;
-use OCA\Duo\Controller\AdminController;
+// Migrate legacy ikey/skey config keys to client_id/client_secret on first load
+$oldIkey = $config->getAppValue('duo', 'ikey', '');
+$oldSkey = $config->getAppValue('duo', 'skey', '');
 
-$app = new Application();
-$container = $app->getContainer();
-$response = $container->query(AdminController::class)->index();
-return $response->render();
+if (!empty($oldIkey) && !$config->getAppValue('duo', 'client_id', '')) {
+    $config->setAppValue('duo', 'client_id', $oldIkey);
+    $config->deleteAppValue('duo', 'ikey');
+}
+if (!empty($oldSkey) && !$config->getAppValue('duo', 'client_secret', '')) {
+    $config->setAppValue('duo', 'client_secret', $oldSkey);
+    $config->deleteAppValue('duo', 'skey');
+}
+if ($config->getAppValue('duo', 'akey', '') !== '') {
+    $config->deleteAppValue('duo', 'akey');
+}
+
+\OCP\Util::addScript('duo', 'duo_admin');
+\OCP\Util::addStyle('duo', 'style');
+
+$params = [
+    'client_id'      => \OC::$server->getConfig()->getAppValue('duo', 'client_id', ''),
+    'client_secret'  => \OC::$server->getConfig()->getAppValue('duo', 'client_secret', ''),
+    'host'           => \OC::$server->getConfig()->getAppValue('duo', 'host', ''),
+    'globalEnabled'  => \OC::$server->getConfig()->getAppValue('duo', 'globalEnabled', false),
+    'ipEnabled'      => \OC::$server->getConfig()->getAppValue('duo', 'ipEnabled', false),
+    'ldapEnabled'    => \OC::$server->getConfig()->getAppValue('duo', 'ldapEnabled', false),
+    'ipList'         => \OC::$server->getConfig()->getAppValue('duo', 'ipList', ''),
+    'networkList'    => \OC::$server->getConfig()->getAppValue('duo', 'networkList', ''),
+    'netbiosDomain'  => \OC::$server->getConfig()->getAppValue('duo', 'netbiosDomain', ''),
+    'netbiosEnabled' => \OC::$server->getConfig()->getAppValue('duo', 'netbiosEnabled', false),
+];
+
+$tmpl = new OCP\Template('duo', 'admin');
+foreach ($params as $key => $value) {
+    $tmpl->assign($key, $value);
+}
+
+return $tmpl->fetchPage();

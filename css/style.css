@@ -10,12 +10,17 @@
 	margin-left: 28px;
 }
 
-.fake {
-	display: none;
-}
-
 #reset-btn, #advcd-btn {
 	float: right;
+}
+
+#body-login .v-align p.info {
+    padding-top: 0;
+    padding-bottom: 20px;
+}
+
+#body-login .v-align p.btn {
+    padding-bottom: 10px;
 }
 
 input[type="text"], input[type="password"],textarea {

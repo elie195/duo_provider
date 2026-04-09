@@ -1,20 +1,13 @@
-<?php
-script('duo', 'duo_admin');
-style('duo', 'style');
-?>
-
 <div id="duo">
   <div class="section">
     <h2 class="app-name">Duo MFA</h2>
     <div class="box" id="duo-settings">
-      <input class="fake" id="fake-username" type="text" name="username">
-      <input class="fake" id="fake-password" type="password" name="password">
       <p><label for="client-id-input">Client ID: </label>
-      <input class="duo-text indent" id="client-id-input" type="text" value="<?php p($_['client_id'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
+      <input class="duo-text indent" id="client-id-input" type="text" value="<?php p($_['client_id'])?>" placeholder="DIXXXXXXXXXXXXXXXXXX" autocomplete="new-password" /></p>
       <p><label for="client-secret-input">Client Secret: </label>
-      <input class="duo-text indent" id="client-secret-input" type="text" value="<?php p($_['client_secret'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="off" /></p>
+      <input class="duo-text indent" id="client-secret-input" type="password" value="<?php p($_['client_secret'])?>" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="new-password" /></p>
       <p><label for="host-input">API Hostname: </label>
-      <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com" autocomplete="off" /></p>
+      <input class="duo-text indent" id="host-input" type="text" value="<?php p($_['host'])?>" placeholder="api-XXXXXXXX.duosecurity.com" autocomplete="new-password" /></p>
       <hr>
       <div id="advcd-div">
       <p><label for="ip-bypass-list">IP Bypass List  <small>(one <strong>IP</strong> or <strong>Network (CIDR)</strong> per line):</label>

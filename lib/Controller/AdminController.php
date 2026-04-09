@@ -43,50 +43,6 @@ class AdminController extends Controller {
     }
 
     /**
-     * Migrate legacy ikey/skey config keys to client_id/client_secret on first load.
-     * Safe to call repeatedly — only runs if old keys exist and new ones are absent.
-     */
-    private function migrateLegacyKeys() {
-        $oldIkey = $this->configService->getAppValue("ikey");
-        $oldSkey = $this->configService->getAppValue("skey");
- 
-        if (!empty($oldIkey) && !$this->configService->hasValue("client_id")) {
-            $this->configService->setAppValue("client_id", $oldIkey);
-            $this->configService->deleteAppValue("ikey");
-        }
-        if (!empty($oldSkey) && !$this->configService->hasValue("client_secret")) {
-            $this->configService->setAppValue("client_secret", $oldSkey);
-            $this->configService->deleteAppValue("skey");
-        }
-        // Remove legacy akey — not used in v4
-        if ($this->configService->hasValue("akey")) {
-            $this->configService->deleteAppValue("akey");
-        }
-    }
-
-    /**
-     * @AdminRequired
-     * @return TemplateResponse
-     */
-    public function index() {
-        $this->migrateLegacyKeys();
- 
-        $params = [
-            'client_id'      => $this->configService->getAppValue("client_id"),
-            'client_secret'  => $this->configService->getAppValue("client_secret"),
-            'host'           => $this->configService->getAppValue("host"),
-            'globalEnabled'  => $this->configService->getAppValue("globalEnabled"),
-            'ipEnabled'      => $this->configService->getAppValue("ipEnabled"),
-            'ldapEnabled'    => $this->configService->getAppValue("ldapEnabled"),
-            'ipList'         => $this->configService->getAppValue("ipList"),
-            'networkList'    => $this->configService->getAppValue("networkList"),
-            'netbiosDomain'  => $this->configService->getAppValue("netbiosDomain"),
-            'netbiosEnabled' => $this->configService->getAppValue("netbiosEnabled"),
-        ];
-        return new TemplateResponse($this->appName, 'admin', $params, 'admin');
-    }
-
-    /**
      * @param string $client_id
      * @param string $client_secret
      * @param string $host

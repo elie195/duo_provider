@@ -10,14 +10,12 @@
             $('#netbios-label').hide();
         }
 
-        // Show client_secret as password field by default
-        $('#client-secret-input').attr("type", "password");
-
         // Strip quotes from text inputs on blur
         $('#client-id-input, #client-secret-input, #host-input').blur(function () {
             $(this).val($(this).val().replace(/['"]+/g, ''));
         });
 
+        // Toggle to show/hide advanced section
         let advOpen = false;
         $('#advcd-btn').click(function (e) {
             e.preventDefault();
