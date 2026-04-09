@@ -163,7 +163,7 @@ class DuoService implements IDuoService {
             // If returning from Duo callback, the code arrives as a query param.
             // Store it in session now (we're in the correct session here) and
             // set pending flag so the template auto-submits.
-            $incomingCode = isset($_GET['duo_code']) ? $_GET['duo_code'] : null;
+            $incomingCode = $this->request->getParam('duo_code', null);
             if (!empty($incomingCode)) {
                 $this->session->set('duo_code', $incomingCode);
             }
@@ -171,7 +171,7 @@ class DuoService implements IDuoService {
             $hasPendingCode = !empty($this->session->get('duo_code'));
 
             if (!$hasPendingCode) {
-                $nonce       = bin2hex(random_bytes(16));
+                $nonce = bin2hex(random_bytes(16));
                 $this->session->set('duo_nonce', $nonce);
                 $this->session->set('duo_username', $user->getUID());
                 $duoUsername = $this->resolveDuoUsername($user);
