@@ -39,7 +39,7 @@ jobs:
               php occ integrity:sign-app \
                 --privateKey=/tmp/oc-certs/app.key \
                 --certificate=/tmp/oc-certs/app.crt \
-                --path=/tmp/app-staging
+                --path=/tmp/app-staging/duo
             "
 
       - name: Copy signature back to workspace
