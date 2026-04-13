@@ -6,6 +6,9 @@ on:
       - master
   workflow_dispatch:
 
+env:
+  OC_VERSION: "10.16.1"
+
 jobs:
   sign:
     runs-on: ubuntu-latest  # plain runner, no container:
@@ -36,22 +39,35 @@ jobs:
 
       - name: Sign the app
         run: |
-          docker run --rm \
-            -v "$STAGING":/app-staging \
+          # Start container in background
+          docker run -d --name oc-signer \
             -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
             -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
-            owncloud/server:10.16.1 \
-            /bin/bash -c "
-              mkdir -p /tmp/oc-certs && \
-              printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
-              printf '%s' \"\$CERTIFICATE\" > /tmp/oc-certs/app.crt && \
-              chmod 600 /tmp/oc-certs/app.key && \
-              cd /var/www/owncloud && \
-              php occ integrity:sign-app \
-                --privateKey=/tmp/oc-certs/app.key \
-                --certificate=/tmp/oc-certs/app.crt \
-                --path=/app-staging
-            "
+            --entrypoint sleep \
+            owncloud/server:$OC_VERSION 300
+
+          # Copy staging dir into container
+          docker cp "$STAGING/." oc-signer:/app-staging
+
+          # Run signing
+          docker exec oc-signer /bin/bash -c "
+            mkdir -p /tmp/oc-certs && \
+            printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
+            printf '%s' \"\$CERTIFICATE\" > /tmp/oc-certs/app.crt && \
+            chmod 600 /tmp/oc-certs/app.key && \
+            cd /var/www/owncloud && \
+            php occ integrity:sign-app \
+              --privateKey=/tmp/oc-certs/app.key \
+              --certificate=/tmp/oc-certs/app.crt \
+              --path=/app-staging
+          "
+
+          # Copy signature back out
+          docker cp oc-signer:/app-staging/appinfo/signature.json \
+            "$GITHUB_WORKSPACE/appinfo/signature.json"
+
+          # Cleanup
+          docker rm -f oc-signer
 
       - name: Copy signature back to workspace
         run: |
