@@ -87,9 +87,10 @@ jobs:
       
       - name: Package app tarball
         run: |
-          STAGING_PARENT=$(dirname "$STAGING")
           tar -czf "$GITHUB_WORKSPACE/duo.tar.gz" \
-            -C "$STAGING_PARENT" duo
+            -C "$(dirname $STAGING)" \
+            --transform 's/^staging/duo/' \
+            staging
       
       - name: Upload tarball as artifact
         uses: actions/upload-artifact@v4
