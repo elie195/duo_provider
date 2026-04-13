@@ -18,11 +18,9 @@ jobs:
 
       - name: Extract occ from ownCloud image
         run: |
-          docker create --name oc-tmp owncloud/server:10.15.3
-          docker cp oc-tmp:/var/www/owncloud/occ /usr/local/bin/occ
-          docker cp oc-tmp:/var/www/owncloud/console.php /usr/local/bin/console.php
+          docker create --name oc-tmp owncloud/server:10.16.1
+          docker cp oc-tmp:/var/www/owncloud /opt/owncloud
           docker rm oc-tmp
-          chmod +x /usr/local/bin/occ
 
       - name: Write cert and key from secrets
         run: |
@@ -44,10 +42,11 @@ jobs:
 
       - name: Sign the app
         run: |
-          php /usr/local/bin/occ integrity:sign-app \
+          php /opt/owncloud/occ integrity:sign-app \
             --privateKey=/tmp/oc-certs/app.key \
             --certificate=/tmp/oc-certs/app.crt \
             --path=/tmp/app-staging
+        working-directory: /opt/owncloud
 
       - name: Copy signature back to workspace
         run: |
