@@ -67,11 +67,6 @@ jobs:
 
           docker rm -f oc-signer
 
-      - name: Copy signature back to workspace
-        run: |
-          cp "$GITHUB_WORKSPACE/../staging/appinfo/signature.json" \
-             "$GITHUB_WORKSPACE/appinfo/signature.json"
-
       - name: Commit and push signature
         run: |
           git config user.name  "gitea-actions[bot]"
@@ -84,10 +79,11 @@ jobs:
       - name: Package app tarball
         run: |
           APP_NAME=duo
-          mkdir -p /tmp/pkg/"$APP_NAME"
-          cp -r /tmp/app-staging/. /tmp/pkg/"$APP_NAME"/
+          # Copy the updated signature into staging before tarring
+          cp "$GITHUB_WORKSPACE/appinfo/signature.json" \
+             "$STAGING/appinfo/signature.json"
           tar -czf "$GITHUB_WORKSPACE/${APP_NAME}.tar.gz" \
-            -C /tmp/pkg "$APP_NAME"
+            -C "$STAGING/.." duo
       
       - name: Upload tarball as artifact
         uses: actions/upload-artifact@v4
