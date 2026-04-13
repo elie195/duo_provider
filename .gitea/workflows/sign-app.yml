@@ -1,0 +1,68 @@
+jobs:
+  sign:
+    runs-on: ubuntu-latest  # plain runner, no container:
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract occ from ownCloud image
+        run: |
+          docker create --name oc-tmp owncloud/server:10.15
+          docker cp oc-tmp:/var/www/owncloud/occ /usr/local/bin/occ
+          docker rm oc-tmp
+          chmod +x /usr/local/bin/occ
+
+      - name: Write cert and key from secrets
+        run: |
+          mkdir -p /tmp/oc-certs
+          printf '%s' "${{ secrets.OC_PRIVATE_KEY }}" > /tmp/oc-certs/app.key
+          printf '%s' "${{ secrets.OC_CERTIFICATE }}"  > /tmp/oc-certs/app.crt
+          chmod 600 /tmp/oc-certs/app.key
+
+      - name: Copy app to staging dir and strip .git
+        run: |
+          cp -r "$GITHUB_WORKSPACE" /tmp/app-staging
+          rm -rf /tmp/app-staging/.git
+          rm -rf /tmp/app-staging/.gitea
+
+      - name: Sign the app
+        run: |
+          php /usr/local/bin/occ integrity:sign-app \
+            --privateKey=/tmp/oc-certs/app.key \
+            --certificate=/tmp/oc-certs/app.crt \
+            --path=/tmp/app-staging
+
+      - name: Copy signature back to workspace
+        run: |
+          cp /tmp/app-staging/appinfo/signature.json \
+             "$GITHUB_WORKSPACE/appinfo/signature.json"
+
+      - name: Commit and push signature
+        run: |
+          git config user.name  "gitea-actions[bot]"
+          git config user.email "gitea-actions[bot]@noreply.local"
+          git add appinfo/signature.json
+          git diff --cached --quiet || \
+            git commit -m "chore: update app signature [skip ci]"
+          git push
+      
+      - name: Package app tarball
+        run: |
+          APP_NAME=$(basename "$GITHUB_REPOSITORY")
+          mkdir -p /tmp/pkg/"$APP_NAME"
+          cp -r /tmp/app-staging/. /tmp/pkg/"$APP_NAME"/
+          tar -czf "$GITHUB_WORKSPACE/${APP_NAME}.tar.gz" \
+            -C /tmp/pkg "$APP_NAME"
+      
+      - name: Upload tarball as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}
+          path: ${{ github.event.repository.name }}.tar.gz
+
+      - name: Clean up
+        if: always()
+        run: rm -rf /tmp/oc-certs /tmp/app-staging
