@@ -20,7 +20,7 @@ jobs:
         run: |
           cp -r "$GITHUB_WORKSPACE/." "$GITHUB_WORKSPACE/../staging"
           rm -rf "$GITHUB_WORKSPACE/../staging/.git"
-          rm -rf "$GITHUB_WORKSPACE/../staging/.gitea
+          rm -rf "$GITHUB_WORKSPACE/../staging/.gitea"
 
       - name: Sign the app
         run: |
