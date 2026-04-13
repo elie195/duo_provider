@@ -18,9 +18,11 @@ jobs:
 
       - name: Copy app to staging dir and strip .git
         run: |
+          APP_NAME=$(basename "$GITHUB_REPOSITORY")
           cp -r "$GITHUB_WORKSPACE" /tmp/app-staging
           rm -rf /tmp/app-staging/.git
           rm -rf /tmp/app-staging/.gitea
+          ls -la /tmp/app-staging/
 
       - name: Sign the app
         run: |
