@@ -75,6 +75,15 @@ jobs:
           git diff --cached --quiet || \
             git commit -m "chore: update app signature [skip ci]"
           git push
+
+      - name: Debug post-sign
+        run: |
+          echo "STAGING=$STAGING"
+          echo "STAGING_PARENT=$(dirname $STAGING)"
+          ls -la "$(dirname $STAGING)"
+          echo "---"
+          ls -la "$GITHUB_WORKSPACE/appinfo/signature.json" || echo "signature.json NOT in workspace"
+          ls -la "$STAGING/appinfo/signature.json" || echo "signature.json NOT in staging"
       
       - name: Package app tarball
         run: |
