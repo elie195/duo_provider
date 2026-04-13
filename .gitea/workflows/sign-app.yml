@@ -39,17 +39,16 @@ jobs:
 
       - name: Sign the app
         run: |
-          # Start container in background
           docker run -d --name oc-signer \
             -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
             -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
             --entrypoint sleep \
-            owncloud/server:$OC_VERSION 300
+            owncloud/server:10.15.3 300
 
-          # Copy staging dir into container
-          docker cp "$STAGING/." oc-signer:/app-staging
+          # Copy staging into a "duo" subdirectory inside the container
+          docker exec oc-signer mkdir -p /app-staging/duo
+          docker cp "$STAGING/." oc-signer:/app-staging/duo
 
-          # Run signing
           docker exec oc-signer /bin/bash -c "
             mkdir -p /tmp/oc-certs && \
             printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
@@ -59,14 +58,13 @@ jobs:
             php occ integrity:sign-app \
               --privateKey=/tmp/oc-certs/app.key \
               --certificate=/tmp/oc-certs/app.crt \
-              --path=/app-staging
+              --path=/app-staging/duo
           "
 
           # Copy signature back out
-          docker cp oc-signer:/app-staging/appinfo/signature.json \
+          docker cp oc-signer:/app-staging/duo/appinfo/signature.json \
             "$GITHUB_WORKSPACE/appinfo/signature.json"
 
-          # Cleanup
           docker rm -f oc-signer
 
       - name: Copy signature back to workspace
