@@ -16,13 +16,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Write cert and key from secrets
-        run: |
-          mkdir -p /tmp/oc-certs
-          printf '%s' "${{ secrets.OC_PRIVATE_KEY }}" > /tmp/oc-certs/app.key
-          printf '%s' "${{ secrets.OC_CERTIFICATE }}"  > /tmp/oc-certs/app.crt
-          chmod 600 /tmp/oc-certs/app.key
-
       - name: Copy app to staging dir and strip .git
         run: |
           cp -r "$GITHUB_WORKSPACE" /tmp/app-staging
@@ -33,12 +26,20 @@ jobs:
         run: |
           docker run --rm \
             -v /tmp/app-staging:/tmp/app-staging \
-            -v /tmp/oc-certs:/tmp/oc-certs \
+            -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
+            -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
             owncloud/server:10.16.1 \
-            /bin/bash -c "cd /var/www/owncloud && php occ integrity:sign-app \
-              --privateKey=/tmp/oc-certs/app.key \
-              --certificate=/tmp/oc-certs/app.crt \
-              --path=/tmp/app-staging"
+            /bin/bash -c "
+              mkdir -p /tmp/oc-certs && \
+              printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
+              printf '%s' \"\$CERTIFICATE\" > /tmp/oc-certs/app.crt && \
+              chmod 600 /tmp/oc-certs/app.key && \
+              cd /var/www/owncloud && \
+              php occ integrity:sign-app \
+                --privateKey=/tmp/oc-certs/app.key \
+                --certificate=/tmp/oc-certs/app.crt \
+                --path=/tmp/app-staging
+            "
 
       - name: Copy signature back to workspace
         run: |
