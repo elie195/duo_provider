@@ -18,17 +18,19 @@ jobs:
 
       - name: Copy app to staging dir and strip .git
         run: |
-          cp -r "$GITHUB_WORKSPACE/." "$GITHUB_WORKSPACE/../staging"
-          rm -rf "$GITHUB_WORKSPACE/../staging/.git"
-          rm -rf "$GITHUB_WORKSPACE/../staging/.gitea"
+          STAGING=$(realpath "$GITHUB_WORKSPACE/../staging")
+          cp -r "$GITHUB_WORKSPACE/." "$STAGING"
+          rm -rf "$STAGING/.git"
+          rm -rf "$STAGING/.gitea"
+          echo "STAGING=$STAGING" >> $GITHUB_ENV
 
       - name: Sign the app
         run: |
           docker run --rm \
-            -v "$GITHUB_WORKSPACE/../staging":/app-staging \
+            -v "$STAGING":/app-staging \
             -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
             -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
-            owncloud/server:10.16.1 \
+            owncloud/server:10.15.3 \
             /bin/bash -c "
               mkdir -p /tmp/oc-certs && \
               printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
