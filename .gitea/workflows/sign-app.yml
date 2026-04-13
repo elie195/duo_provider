@@ -34,7 +34,7 @@ jobs:
           ls -la "$STAGING/appinfo"
           docker run --rm \
             -v "$STAGING":/app-staging \
-            owncloud/server:10.15.3 \
+            owncloud/server:$OC_VERSION \
             ls -la /app-staging
 
       - name: Sign the app
@@ -43,7 +43,7 @@ jobs:
             -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
             -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
             --entrypoint sleep \
-            owncloud/server:10.15.3 300
+            owncloud/server:$OC_VERSION 300
 
           # Copy staging into a "duo" subdirectory inside the container
           docker exec oc-signer mkdir -p /app-staging/duo
@@ -83,7 +83,7 @@ jobs:
       
       - name: Package app tarball
         run: |
-          APP_NAME=$(basename "$GITHUB_REPOSITORY")
+          APP_NAME=duo
           mkdir -p /tmp/pkg/"$APP_NAME"
           cp -r /tmp/app-staging/. /tmp/pkg/"$APP_NAME"/
           tar -czf "$GITHUB_WORKSPACE/${APP_NAME}.tar.gz" \
