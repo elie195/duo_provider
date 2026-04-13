@@ -93,10 +93,10 @@ jobs:
             staging
       
       - name: Upload tarball as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: duo
-          path: duo.tar.gz
+          path: ${{ github.workspace }}/duo.tar.gz
 
       - name: Clean up
         if: always()
