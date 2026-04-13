@@ -18,8 +18,9 @@ jobs:
 
       - name: Extract occ from ownCloud image
         run: |
-          docker create --name oc-tmp owncloud/server:10.16.1
+          docker create --name oc-tmp owncloud/server:10.15.3
           docker cp oc-tmp:/var/www/owncloud/occ /usr/local/bin/occ
+          docker cp oc-tmp:/var/www/owncloud/console.php /usr/local/bin/console.php
           docker rm oc-tmp
           chmod +x /usr/local/bin/occ
 
