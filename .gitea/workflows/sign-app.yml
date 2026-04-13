@@ -36,6 +36,11 @@ jobs:
           rm -rf /tmp/app-staging/.git
           rm -rf /tmp/app-staging/.gitea
 
+      - name: Install PHP
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq php-cli php-xml php-mbstring php-zip
+
       - name: Sign the app
         run: |
           php /usr/local/bin/occ integrity:sign-app \
