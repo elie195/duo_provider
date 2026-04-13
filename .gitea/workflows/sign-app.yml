@@ -23,6 +23,16 @@ jobs:
           rm -rf "$STAGING/.git"
           rm -rf "$STAGING/.gitea"
           echo "STAGING=$STAGING" >> $GITHUB_ENV
+      
+      - name: Debug staging
+        run: |
+          echo "STAGING=$STAGING"
+          ls -la "$STAGING"
+          ls -la "$STAGING/appinfo"
+          docker run --rm \
+            -v "$STAGING":/app-staging \
+            owncloud/server:10.15.3 \
+            ls -la /app-staging
 
       - name: Sign the app
         run: |
@@ -30,7 +40,7 @@ jobs:
             -v "$STAGING":/app-staging \
             -e PRIVATE_KEY="${{ secrets.OC_PRIVATE_KEY }}" \
             -e CERTIFICATE="${{ secrets.OC_CERTIFICATE }}" \
-            owncloud/server:10.15.3 \
+            owncloud/server:10.16.1 \
             /bin/bash -c "
               mkdir -p /tmp/oc-certs && \
               printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
