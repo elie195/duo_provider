@@ -1,3 +1,10 @@
+name: Sign app
+
+on:
+  push:
+    branches:
+      - master
+
 jobs:
   sign:
     runs-on: ubuntu-latest  # plain runner, no container:
