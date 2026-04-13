@@ -14,15 +14,15 @@ This plugin has been updated to use Duo Security's Web SDK v4 since v2 has been 
 'http.cookie.samesite' => 'Lax',
 ```
 
-This change is necessary in order for Duo to be able to pass its authentication response back to the plugin for verification. This is because ownCloud sets 'SameSite=Strict' on cookies by default, so a redirect flow like this isn't possible with this setting (the session cookie isn't sent back to ownCloud when Duo performs the redirect back to ownCloud unless it's set to 'Lax', in which case it will send these cookies when top-level redirects are performed like in this case).
+This change is necessary in order for Duo to be able to pass its authentication response back to the plugin for verification. This is because ownCloud sets `SameSite=Strict` on cookies by default, so a redirect flow like this isn't possible with this setting (the session cookie isn't sent back to ownCloud when Duo performs the redirect back to ownCloud unless it's set to `Lax`, in which case it will send these cookies when top-level redirects are performed like in this case).
 
 `Lax` still protects against CSRF on POST requests and it only allows the cookie to be sent on top-level GET navigations. `Strict` simply does not work for OAuth/OIDC redirect flows like this.
 
 ---
 
-Existing v2 applications configured in the Duo Admin panel should still work with this new version. the **AKEY** config value is no longer used in v4. However, **IKEY** and **SKEY** have had their names changed to **Client ID** and **Client Secret**, respectively. So it's possible to use the same **IKEY** and **SKEY** values provided by Duo in this new version.
+Existing v2 applications configured in the Duo Admin panel should still work with this new version. The **AKEY** config value is no longer used in v4. However, **IKEY** and **SKEY** have had their names changed to **Client ID** and **Client Secret**, respectively. So it's possible to use the same **IKEY** and **SKEY** values provided by Duo in this new version.
 
-If the plugin detects existing **IKEY** and **SKEY** values, it will automatically migrate these values to the new **Client ID** and **Client Secret** fields in the settings panel.
+If the plugin detects existing **IKEY** and **SKEY** values, it will automatically migrate these values to the new **Client ID** and **Client Secret** fields in the settings panel. According to Duo, once a v2 application tries to authenticate for the first time using the v4 framework, the application will get migrated to v4 behind-the-scenes on Duo's side (I have not tested this however).
 
 ## Requirements
 
@@ -38,7 +38,7 @@ If the plugin detects existing **IKEY** and **SKEY** values, it will automatical
 
    ![Image of Duo in Marketplace](https://github.com/elie195/duo_provider/raw/dev/screenshots/market_duo.png)
 
-2. Follow steps 2 and 3 from the "Manually" section
+2. Follow steps 2, 3, and 4 from the "Manually" section
 
 ### Manually
 
@@ -55,6 +55,10 @@ If the plugin detects existing **IKEY** and **SKEY** values, it will automatical
 3. Configure your own **Client ID**, **Client Secret**, **API Host** values under **Settings** > **Admin section** > **Additional**:
 
    ![Image of Duo settings](https://github.com/elie195/duo_provider/raw/master/screenshots/settings.png)
+
+4. Add/modify the `http.cookie.samesite` setting in `config.php` setting it to `Lax`.
+
+   ![Image of ownCloud settings](https://github.com/elie195/duo_provider/raw/master/screenshots/oc_config.png)
 
 ## Notes
 
