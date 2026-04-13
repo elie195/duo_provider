@@ -18,7 +18,7 @@ jobs:
 
       - name: Copy app to staging dir and strip .git
         run: |
-          cp -r "$GITHUB_WORKSPACE" /tmp/app-staging
+          cp -r "$GITHUB_WORKSPACE" /tmp/app-staging/duo
           rm -rf /tmp/app-staging/.git
           rm -rf /tmp/app-staging/.gitea
 
