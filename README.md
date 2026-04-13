@@ -58,7 +58,7 @@ If the plugin detects existing **IKEY** and **SKEY** values, it will automatical
 
 4. Add/modify the `http.cookie.samesite` setting in `config.php` setting it to `Lax`.
 
-   ![Image of ownCloud settings](https://github.com/elie195/duo_provider/raw/master/screenshots/oc_config.png)
+   ![Image of ownCloud config](https://github.com/elie195/duo_provider/raw/master/screenshots/oc_config.png)
 
 ## Notes
 
