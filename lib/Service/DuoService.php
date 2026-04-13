@@ -141,7 +141,7 @@ class DuoService implements IDuoService {
         // We can't use the app framework router here because OC blocks app
         // routes during 2FA pending state via OC_Util::checkLoggedIn().
         $baseUrl     = \OC::$server->getURLGenerator()->getAbsoluteURL('/');
-        $redirectUri = rtrim($baseUrl, '/') . '/apps/duo/duo_callback.php';
+        $redirectUri = rtrim($baseUrl, '/') . '/apps-external/duo/duo_callback.php';
 
         return new Client($clientId, $clientSecret, $host, $redirectUri);
     }
