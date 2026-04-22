@@ -68,6 +68,13 @@ jobs:
             "$GITHUB_WORKSPACE/appinfo/signature.json"
           docker cp oc-signer:/tmp/duo.tar.gz \
             "$GITHUB_WORKSPACE/duo.tar.gz"
+          
+          docker exec oc-signer md5sum /app-staging/duo/appinfo/signature.json
+          docker exec oc-signer md5sum /tmp/duo.tar.gz
+          md5sum "$GITHUB_WORKSPACE/appinfo/signature.json"
+          md5sum "$GITHUB_WORKSPACE/duo.tar.gz"
+          # Extract and check signature inside tarball
+          tar -xOf "$GITHUB_WORKSPACE/duo.tar.gz" duo/appinfo/signature.json | md5sum
 
           docker rm -f oc-signer
 
