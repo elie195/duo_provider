@@ -99,6 +99,10 @@ jobs:
           echo "---"
           ls -la "$GITHUB_WORKSPACE/appinfo/signature.json" || echo "signature.json NOT in workspace"
           ls -la "$STAGING/appinfo/signature.json" || echo "signature.json NOT in staging"
+          file "$GITHUB_WORKSPACE/admin.php"
+          file "$STAGING/admin.php"
+          md5sum "$GITHUB_WORKSPACE/admin.php"
+          md5sum "$STAGING/admin.php"
       
       - name: Package app tarball
         run: |
