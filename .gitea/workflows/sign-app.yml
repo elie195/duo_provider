@@ -48,6 +48,9 @@ jobs:
           docker exec oc-signer mkdir -p /app-staging/duo
           docker cp "$STAGING/." oc-signer:/app-staging/duo
 
+          # Delete any existing signature before signing
+          docker exec oc-signer rm -f /app-staging/duo/appinfo/signature.json
+
           docker exec oc-signer /bin/bash -c "
             mkdir -p /tmp/oc-certs && \
             printf '%s' \"\$PRIVATE_KEY\" > /tmp/oc-certs/app.key && \
@@ -61,7 +64,6 @@ jobs:
             tar -czf /tmp/duo.tar.gz -C /app-staging duo
           "
 
-          # Copy both outputs out of the container
           docker cp oc-signer:/app-staging/duo/appinfo/signature.json \
             "$GITHUB_WORKSPACE/appinfo/signature.json"
           docker cp oc-signer:/tmp/duo.tar.gz \
