@@ -90,6 +90,7 @@ jobs:
           git diff --cached --quiet || \
             git commit -m "chore: update app signature [skip ci]"
           git push
+          git show HEAD:appinfo/signature.json | md5sum
 
       - name: Debug post-sign
         run: |
