@@ -107,6 +107,8 @@ jobs:
       
       - name: Package app tarball
         run: |
+          # Use workspace which has the committed signature, not staging
+          cp "$GITHUB_WORKSPACE/appinfo/signature.json" "$STAGING/appinfo/signature.json"
           tar -czf "$GITHUB_WORKSPACE/duo.tar.gz" \
             -C "$(dirname $STAGING)" \
             --transform 's/^staging/duo/' \
