@@ -80,9 +80,13 @@ jobs:
 
       - name: Commit and push signature
         run: |
+          md5sum "$GITHUB_WORKSPACE/appinfo/signature.json"
+          git diff appinfo/signature.json
           git config user.name  "gitea-actions[bot]"
           git config user.email "gitea-actions[bot]@noreply.local"
           git add appinfo/signature.json
+          md5sum "$GITHUB_WORKSPACE/appinfo/signature.json"
+          git diff --cached appinfo/signature.json
           git diff --cached --quiet || \
             git commit -m "chore: update app signature [skip ci]"
           git push
