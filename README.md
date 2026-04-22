@@ -74,6 +74,7 @@ To change the LDAP settings so that the internal identifier uses the username in
 
 ### Added features
 
+- April 22, 2026: Bugfix
 - April 8, 2026: Migrated plugin from iframe-based SDK v2 to SDK v4 with Universal Prompt
 - August 21, 2017: Added a "Generate" button in the Admin panel for the AKEY field. This allows an administrator to easily generate a new AKEY.
 - August 12, 2017: Added ability to prepend usernames with a custom NetBIOS domain name before usernames are sent to Duo for validation. For example, if this feature is enabled and NetBIOS domain is set to "TEST", an ownCloud user with username "user" will become "TEST\user" when sending the username to Duo.([https://github.com/elie195/duo_provider/issues/11](https://github.com/elie195/duo_provider/issues/11))
